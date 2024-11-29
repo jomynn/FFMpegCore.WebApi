@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Logs</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Job Logs</h1>
+        <p id="welcomeMessage">Loading...</p>
+    </header>
+    <main>
+        <div id="sidebar-container"></div> <!-- Placeholder for the sidebar -->
+        <div class="content">
+            <table class="styled-table">
+                <caption>Job Logs</caption>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Job Name</th>
+                        <th>Status</th>
+                        <th>Details</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody id="jobLogsTable">
+                    <!-- Job logs will be dynamically added here -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+    <script src="/js/sidebar.js"></script>
+    <script src="/js/jwtToken.js"></script>
+    <script>
+        // Fetch job logs from the API
+        fetch('/api/joblogs')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('jobLogsTable');
+                data.forEach(log => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                                                <td>${log.id}</td>
+                                                <td>${log.jobName}</td>
+                                                <td>${log.status}</td>
+                                                <td>${log.details}</td>
+                                                <td>${log.createdAt}</td>
+                                            `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching job logs:', error));
+    </script>
+</body>
+</html>

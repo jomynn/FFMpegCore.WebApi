@@ -1,4 +1,120 @@
-﻿/* General Table Styles */
+﻿body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Header at the top, main below */
+    height: 100vh; /* Full viewport height */
+}
+
+header {
+    background-color: #2c3e50; /* Dark header background */
+    color: white; /* White text */
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for header */
+}
+
+main {
+    display: flex; /* Layout with sidebar and content side by side */
+    flex: 1; /* Main takes up the remaining height */
+    overflow: hidden; /* Prevent overflow issues */
+}
+
+#sidebar-container {
+    width: 220px; /* Fixed width for the sidebar */
+    background-color: #34495e; /* Sidebar background */
+    color: white;
+    padding: 15px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for sidebar */
+    display: flex;
+    flex-direction: column; /* Arrange sidebar links vertically */
+}
+
+#sidebar-container h2 {
+text-align: center;
+margin-bottom: 20px;
+color: white;
+}
+
+#sidebar-container a {
+color: white;
+text-decoration: none;
+padding: 10px 15px;
+display: block;
+font-size: 14px;
+border-left: 4px solid transparent;
+transition: all 0.3s ease;
+}
+
+#sidebar-container a:hover {
+    background-color: #1abc9c;
+    border-left: 4px solid white;
+}
+
+#sidebar-container a.active {
+    background-color: #1abc9c;
+    border-left: 4px solid #16a085;
+}
+.sidebar {
+    width: 200px;
+    height: 100vh;
+    background-color: #333;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+}
+
+.sidebar a {
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    display: block;
+}
+
+.sidebar a:hover {
+    background-color: #575757;
+}
+
+/* Content Styling */
+.content {
+    flex: 1; /* Take up all remaining horizontal space */
+    background-color: #f8f9fa; /* Light background for content */
+    padding: 20px;
+    overflow-y: auto; /* Scrollable if content exceeds height */
+}
+
+section {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    border-radius: 5px;
+}
+
+h2 {
+    margin-top: 0;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+progress {
+    width: 100%;
+    height: 20px;
+}
+
+/* General Table Styles */
 table {
     width: 100%;
     border-collapse: collapse; /* Remove double borders */
@@ -113,5 +229,25 @@ caption {
 
     th, td {
         padding: 10px;
+    }
+}
+@media (max-width: 768px) {
+    .sidebar {
+        width: 180px;
+    }
+
+    .content {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    .sidebar {
+        display: none; /* Hide the sidebar on very small screens */
+    }
+
+    .content {
+        flex: 1;
+        padding: 15px;
     }
 }
