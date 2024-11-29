@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Results</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>API Job Results</h1>
+    <table id="jobResultsTable">
+        <thead>
+            <tr>
+                <th>Job Name</th>
+                <th>Status</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Results will be appended here -->
+        </tbody>
+    </table>
+    <script>
+        // Mock API results for demonstration
+        const jobResults = [
+            { name: "AnalyseVideo", status: "Success", details: "Video analysis completed successfully." },
+            { name: "ConvertVideo", status: "Error", details: "File format not supported." },
+            { name: "CreateSnapshot", status: "Success", details: "Snapshot created at frame 100." },
+            { name: "ExtractAudio", status: "Success", details: "Audio extracted and saved as audio.mp3." },
+            { name: "JoinVideos", status: "Success", details: "Videos joined successfully." },
+            { name: "ProcessVideoWithProgress", status: "Success", details: "Processing completed with 100% progress." },
+            { name: "MergeVideos", status: "Error", details: "Error merging videos due to resolution mismatch." },
+            { name: "MergeAudioWithVideo", status: "Success", details: "Audio merged with video successfully." },
+            { name: "AddAudio", status: "Success", details: "Background audio added successfully." },
+            { name: "AddSubtitles", status: "Success", details: "Subtitles added to the video." },
+        ];
+
+        // Populate the table with job results
+        const tableBody = document.getElementById("jobResultsTable").querySelector("tbody");
+
+        jobResults.forEach(result => {
+            const row = document.createElement("tr");
+            const statusClass = result.status === "Success" ? "success" : "error";
+
+            row.innerHTML = `
+                <td>${result.name}</td>
+                <td class="${statusClass}">${result.status}</td>
+                <td>${result.details}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    </script>
+</body>
+</html>

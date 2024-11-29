@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NLog;
 using NLog.Web;
@@ -16,6 +17,8 @@ try
     builder.Logging.ClearProviders();
     builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
     builder.Host.UseNLog();
+
+    
 
     // Configure JWT
     var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
@@ -38,9 +41,12 @@ try
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
             };
         });
+    // Add services to the container
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlite("Data Source=JobLogs.db"));
 
     // Add services to the container
-    builder.Services.AddControllers();
+    builder.Services.AddControllersWithViews();
     builder.Services.AddSingleton(jwtSettings);
 
     // Add Swagger for API documentation
@@ -58,6 +64,22 @@ try
     });
 
     var app = builder.Build();
+
+    // Migrate database on startup
+    using (var scope = app.Services.CreateScope())
+    {
+        try
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            db.Database.Migrate();
+        }
+        catch (Exception ex)
+        {
+           
+            logger.Error(ex, "An error occurred while migrating the database.");
+            throw; // Re-throw to catch the root cause
+        }
+    }
 
     //app.UseHttpsRedirection();
 

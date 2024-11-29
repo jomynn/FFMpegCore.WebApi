@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Render Logs</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    
+</head>
+<body>
+    <header>
+        <h1>Render Logs</h1>
+        <p id="welcomeMessage">Loading...</p>
+    </header>
+    <main>
+        <div id="sidebar-container"></div> <!-- Placeholder for the sidebar -->
+        <div class="content">
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>Video ID</th>
+                        <th>Status</th>
+                        <th>Resolution</th>
+                        <th>Duration (s)</th>
+                        <th>Rendering Time (ms)</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody id="renderLogsTable">
+                    <!-- Render logs will be dynamically added here -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+    <script src="/js/sidebar.js"></script>
+    <script src="/js/jwtToken.js"></script>
+    <script>
+        // Fetch render logs from the API
+        fetch('/api/renderlogs')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('renderLogsTable');
+                data.forEach(log => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                                                <td>${log.videoId}</td>
+                                                <td>${log.status}</td>
+                                                <td>${log.resolution}</td>
+                                                <td>${log.durationSeconds}</td>
+                                                <td>${log.renderingTime}</td>
+                                                <td>${log.createDate}</td>
+                                            `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching render logs:', error));
+    </script>
+</body>
+</html>

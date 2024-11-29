@@ -413,4 +413,17 @@ public class FFMpegController : ControllerBase
             });
         }
     }
+
+    [HttpGet("jobs")]
+    public IActionResult GetJobs()
+    {
+        var jobResults = new[]
+        {
+        new { Name = "AnalyseVideo", Status = "Success", Details = "Video analysis completed successfully." },
+        new { Name = "ConvertVideo", Status = "Error", Details = "File format not supported." },
+        // Add more jobs here
+    };
+
+        return Ok(jobResults);
+    }
 }
