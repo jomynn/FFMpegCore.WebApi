@@ -14,6 +14,9 @@ public class FFMpegController : ControllerBase
     private readonly IWebHostEnvironment _environment;
     private readonly string UploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
     private readonly string OutputPath = Path.Combine(Directory.GetCurrentDirectory(), "output");
+    private const string MP4 = ".mp4";
+    private const string MP3 = ".mp3";
+    private const string JPG = ".jpg";
 
     [HttpGet("protected")]
     public IActionResult ProtectedEndpoint()
@@ -66,7 +69,7 @@ public class FFMpegController : ControllerBase
     public IActionResult ConvertVideo([FromBody] VideoProcessingRequest request)
     {
         var inputPath = Path.Combine(UploadsPath, request.InputFileName);
-        var outputFilePath = Path.Combine(OutputPath, request.OutputFileName ?? "converted.mp4");
+        var outputFilePath = Path.Combine(OutputPath, FileNameGenerator.GenerateOutputFileName(MP4));
 
         if (!System.IO.File.Exists(inputPath))
         {
@@ -99,7 +102,7 @@ public class FFMpegController : ControllerBase
     public IActionResult CreateSnapshot([FromBody] VideoProcessingRequest request)
     {
         var inputPath = Path.Combine(UploadsPath, request.InputFileName);
-        var outputFilePath = Path.Combine(OutputPath, request.OutputFileName ?? "snapshot.jpg");
+        var outputFilePath = Path.Combine(OutputPath, FileNameGenerator.GenerateOutputFileName(JPG));
 
         if (!System.IO.File.Exists(inputPath))
         {
@@ -121,7 +124,7 @@ public class FFMpegController : ControllerBase
     public IActionResult ExtractAudio([FromBody] VideoProcessingRequest request)
     {
         var inputPath = Path.Combine(UploadsPath, request.InputFileName);
-        var outputFilePath = Path.Combine(OutputPath, request.OutputFileName ?? "audio.mp3");
+        var outputFilePath = Path.Combine(OutputPath, FileNameGenerator.GenerateOutputFileName(MP3));
 
         if (!System.IO.File.Exists(inputPath))
         {
@@ -136,7 +139,7 @@ public class FFMpegController : ControllerBase
     [HttpPost("join-videos")]
     public IActionResult JoinVideos([FromBody] JoinVideosRequest request)
     {
-        var outputFilePath = Path.Combine(OutputPath, request.OutputFileName ?? "joined.mp4");
+        var outputFilePath = Path.Combine(OutputPath, FileNameGenerator.GenerateOutputFileName(MP4));
 
         foreach (var file in request.InputFileNames)
         {
@@ -170,7 +173,7 @@ public class FFMpegController : ControllerBase
         try
         {
             var inputPath = Path.Combine(UploadsPath, "input.mp4");
-            var outputPath = Path.Combine(OutputPath, "output.mp4");
+            var outputPath = Path.Combine(OutputPath, FileNameGenerator.GenerateOutputFileName(MP4));
 
             if (!System.IO.File.Exists(inputPath))
             {
@@ -189,7 +192,8 @@ public class FFMpegController : ControllerBase
         }
     }
 
-    private static async Task ProcessVideoWithProgress(string inputPath, string outputPath, IProgress<int> progress, CancellationToken cancellationToken)
+    private static async Task ProcessVideoWithProgress(string inputPath, string outputPath, 
+        IProgress<int> progress, CancellationToken cancellationToken)
     {
         var totalFrames = 100; // Example: Total frames (or percentage steps)
         for (var i = 0; i <= totalFrames; i++)
@@ -225,7 +229,7 @@ public class FFMpegController : ControllerBase
 
         try
         {
-            var outputPath = Path.Combine("output", request.OutputFileName ?? "merged_video.mp4");
+            var outputPath = Path.Combine("output", FileNameGenerator.GenerateOutputFileName(MP4));
             FFMpeg.Join(outputPath, request.VideoPaths.ToArray());
 
             return Ok(new
@@ -248,8 +252,7 @@ public class FFMpegController : ControllerBase
     public IActionResult MergeAudioWithVideo([FromBody] MergeAudioVideoRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.VideoFileBase64) ||
-            string.IsNullOrWhiteSpace(request.AudioFileBase64) ||
-            string.IsNullOrWhiteSpace(request.OutputFileName))
+            string.IsNullOrWhiteSpace(request.AudioFileBase64))
         {
             return BadRequest("All fields (videoFileBase64, audioFileBase64, outputFileName) are required.");
         }
@@ -263,7 +266,7 @@ public class FFMpegController : ControllerBase
 
         var videoFilePath = Path.Combine(uploadsPath, "uploaded_video.mp4");
         var audioFilePath = Path.Combine(uploadsPath, "uploaded_audio.mp3");
-        var outputFilePath = Path.Combine(outputPath, request.OutputFileName);
+        var outputFilePath = Path.Combine(outputPath, FileNameGenerator.GenerateOutputFileName(MP4));
 
         try
         {
@@ -301,53 +304,6 @@ public class FFMpegController : ControllerBase
         }
     }
 
-    //[HttpPost("merge-audio-video")]
-    //public IActionResult MergeAudioWithVideo(
-    //   [FromForm] IFormFile audioFile,
-    //   [FromForm] IFormFile videoFile,
-    //   [FromForm] string outputFileName)
-    //{
-    //    if (audioFile == null || videoFile == null)
-    //    {
-    //        return BadRequest("Both audio and video files are required.");
-    //    }
-
-    //    var audioPath = Path.Combine("uploads", audioFile.FileName);
-    //    var videoPath = Path.Combine("uploads", videoFile.FileName);
-    //    var outputPath = Path.Combine("output", outputFileName);
-
-    //    try
-    //    {
-    //        using (var audioStream = new FileStream(audioPath, FileMode.Create))
-    //        {
-    //            audioFile.CopyTo(audioStream);
-    //        }
-
-    //        using (var videoStream = new FileStream(videoPath, FileMode.Create))
-    //        {
-    //            videoFile.CopyTo(videoStream);
-    //        }
-
-    //        // Example usage of FFMpeg library (implementation not included)
-    //        FFMpeg.ReplaceAudio(videoPath, audioPath, outputPath);
-
-    //        return Ok(new { OutputPath = outputPath });
-    //    }
-    //    finally
-    //    {
-    //        // Clean up temporary files
-    //        if (System.IO.File.Exists(audioPath))
-    //        {
-    //            System.IO.File.Delete(audioPath);
-    //        }
-
-    //        if (System.IO.File.Exists(videoPath))
-    //        {
-    //            System.IO.File.Delete(videoPath);
-    //        }
-    //    }
-    //}
-
     [HttpPost("add-audio")]
     public IActionResult AddAudio([FromBody] AddAudioRequest request)
     {
@@ -358,7 +314,7 @@ public class FFMpegController : ControllerBase
 
         try
         {
-            var outputPath = Path.Combine("output", request.OutputFileName ?? "video_with_audio.mp4");
+            var outputPath = Path.Combine("output", FileNameGenerator.GenerateOutputFileName(MP4));
             FFMpeg.ReplaceAudio(request.VideoPath, request.AudioPath, outputPath);
 
             return Ok(new
@@ -386,7 +342,7 @@ public class FFMpegController : ControllerBase
 
         try
         {
-            var outputPath = Path.Combine("output", request.OutputFileName ?? "video_with_subtitle.mp4");
+            var outputPath = Path.Combine("output", FileNameGenerator.GenerateOutputFileName(MP4));
 
             // Use FFMpegArguments to add subtitles
             FFMpegArguments

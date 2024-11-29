@@ -179,6 +179,52 @@ caption {
     text-align: left;
 }
 
+/* api */
+
+.api-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.api-list {
+    list-style: none;
+    padding: 0;
+}
+
+    .api-list li {
+        margin-bottom: 15px;
+        padding: 10px;
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+        .api-list li:hover {
+            background: #eaf4ff;
+        }
+
+.endpoint {
+    font-weight: bold;
+    color: #3498db;
+}
+
+.parameters {
+    margin-top: 10px;
+}
+
+    .parameters p {
+        margin: 5px 0;
+        color: #2c3e50;
+    }
+
+.no-parameters {
+    font-style: italic;
+    color: #999;
+}
 /* Responsive Table */
 @media (max-width: 768px) {
     table {

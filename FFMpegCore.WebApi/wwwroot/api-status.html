@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Status Page</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>API Status Page</h1>
+        <p id="welcomeMessage">Loading...</p>
+    </header>
+    <main>
+        <div id="sidebar-container"></div> <!-- Placeholder for the sidebar -->
+        <div class="content">
+            <div class="api-container">
+                <h2>Available Endpoints</h2>
+                <ul class="api-list" id="apiList">
+                    <!-- API functions will be dynamically injected here -->
+                </ul>
+            </div>
+        </div>
+    </main>
+    <script src="/js/sidebar.js"></script>
+    <script src="/js/jwtToken.js"></script>
+    <script>
+        // Mock API data; replace with actual data fetching logic if needed
+        const apiEndpoints = [
+            {
+                name: "MergeAudioWithVideo",
+                method: "POST",
+                route: "/api/merge-audio-video",
+                parameters: [
+                    { name: "videoFile", type: "file", description: "The video file to merge" },
+                    { name: "audioFile", type: "file", description: "The audio file to merge" },
+                    { name: "outputFileName", type: "string", description: "The output file name" }
+                ]
+            },
+            {
+                name: "JobLogs",
+                method: "GET",
+                route: "/api/joblogs",
+                parameters: []
+            },
+            {
+                name: "RenderLogs",
+                method: "GET",
+                route: "/api/renderlogs",
+                parameters: []
+            },
+            {
+                name: "AddAudio",
+                method: "POST",
+                route: "/api/add-audio",
+                parameters: [
+                    { name: "videoFile", type: "file", description: "The video file to which audio will be added" },
+                    { name: "audioFile", type: "file", description: "The audio file to add" },
+                    { name: "outputFileName", type: "string", description: "The output file name" }
+                ]
+            }
+        ];
+
+        // Dynamically populate the API list
+        const apiListElement = document.getElementById("apiList");
+
+        apiEndpoints.forEach(endpoint => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+                                <div class="endpoint">
+                                    <span>${endpoint.method}</span> - <code>${endpoint.route}</code>
+                                </div>
+                                <div class="parameters">
+                                    <h4>Parameters:</h4>
+                                    ${endpoint.parameters.length > 0
+                    ? endpoint.parameters.map(param => `
+                                                <p><strong>${param.name}</strong> (${param.type}) - ${param.description}</p>
+                                              `).join("")
+                    : "<p class='no-parameters'>No parameters required</p>"
+                }
+                                </div>
+                            `;
+            apiListElement.appendChild(li);
+        });
+    </script>
+</body>
+</html>
