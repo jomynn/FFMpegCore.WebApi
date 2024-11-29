@@ -44,7 +44,18 @@ try
     builder.Services.AddSingleton(jwtSettings);
 
     // Add Swagger for API documentation
-    builder.Services.AddSwaggerGen();
+    builder.Services.AddSwaggerGen(c =>
+    {
+        c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+        {
+            Title = "FFMpegCore API",
+            Version = "v1",
+            Description = "API for video and audio processing using FFMpegCore."
+        });
+
+        // Add support for file uploads
+        c.OperationFilter<SwaggerRequestBodyFilter>();
+    });
 
     var app = builder.Build();
 

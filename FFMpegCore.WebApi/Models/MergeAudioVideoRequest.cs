@@ -1,6 +1,6 @@
 ﻿public class MergeAudioVideoRequest
 {
-    public required IFormFile AudioFile { get; set; }
-    public required IFormFile VideoFile { get; set; }
-    public required string OutputFileName { get; set; }
+    public required string VideoFileBase64 { get; set; } // Base64 string of the video file
+    public required string AudioFileBase64 { get; set; } // Base64 string of the audio file
+    public required string OutputFileName { get; set; }  // Desired output file name
 }

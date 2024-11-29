@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 public class FFMpegController : ControllerBase
 {
     private readonly ILogger<FFMpegController> _logger;
+    private readonly IWebHostEnvironment _environment;
     private readonly string UploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
     private readonly string OutputPath = Path.Combine(Directory.GetCurrentDirectory(), "output");
 
@@ -20,11 +21,12 @@ public class FFMpegController : ControllerBase
         return Ok("This is a protected endpoint!");
     }
 
-    public FFMpegController(ILogger<FFMpegController> logger)
+    public FFMpegController(ILogger<FFMpegController> logger, IWebHostEnvironment environment)
     {
         _logger = logger;
         Directory.CreateDirectory(UploadsPath);
         Directory.CreateDirectory(OutputPath);
+        _environment = environment;
     }
 
     [HttpGet("test")]
@@ -239,6 +241,63 @@ public class FFMpegController : ControllerBase
                 Success = false,
                 Error = ex.Message
             });
+        }
+    }
+
+    [HttpPost("merge-audio-video")]
+    public IActionResult MergeAudioWithVideo([FromBody] MergeAudioVideoRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.VideoFileBase64) ||
+            string.IsNullOrWhiteSpace(request.AudioFileBase64) ||
+            string.IsNullOrWhiteSpace(request.OutputFileName))
+        {
+            return BadRequest("All fields (videoFileBase64, audioFileBase64, outputFileName) are required.");
+        }
+
+        var uploadsPath = Path.Combine(_environment.WebRootPath, "uploads");
+        var outputPath = Path.Combine(_environment.WebRootPath, "output");
+
+        // Ensure directories exist
+        Directory.CreateDirectory(uploadsPath);
+        Directory.CreateDirectory(outputPath);
+
+        var videoFilePath = Path.Combine(uploadsPath, "uploaded_video.mp4");
+        var audioFilePath = Path.Combine(uploadsPath, "uploaded_audio.mp3");
+        var outputFilePath = Path.Combine(outputPath, request.OutputFileName);
+
+        try
+        {
+            // Decode and save the video file
+            var videoBytes = Convert.FromBase64String(request.VideoFileBase64);
+            System.IO.File.WriteAllBytes(videoFilePath, videoBytes);
+
+            // Decode and save the audio file
+            var audioBytes = Convert.FromBase64String(request.AudioFileBase64);
+            System.IO.File.WriteAllBytes(audioFilePath, audioBytes);
+
+            // Merge the audio and video
+            FFMpeg.ReplaceAudio(videoFilePath, audioFilePath, outputFilePath);
+
+            // Return the output file path
+            var resultUrl = Url.Content($"~/output/{request.OutputFileName}");
+            return Ok(new { Message = "Merge successful", OutputUrl = resultUrl });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"An error occurred: {ex.Message}");
+        }
+        finally
+        {
+            // Clean up temporary files
+            if (System.IO.File.Exists(videoFilePath))
+            {
+                System.IO.File.Delete(videoFilePath);
+            }
+
+            if (System.IO.File.Exists(audioFilePath))
+            {
+                System.IO.File.Delete(audioFilePath);
+            }
         }
     }
 
