@@ -19,6 +19,9 @@ public class FFMpegController : ControllerBase
         Directory.CreateDirectory(OutputPath);
     }
 
+    [HttpGet("test")]
+    public IActionResult Test() => Ok("API is working");
+
     [HttpPost("analyse")]
     public IActionResult AnalyseVideo([FromBody] VideoProcessingRequest request)
     {
@@ -200,5 +203,147 @@ public class FFMpegController : ControllerBase
                 .WithVideoCodec("libx264")
                 .WithFastStart())
             .ProcessAsynchronously();
+    }
+
+    [HttpPost("merge-videos")]
+    public IActionResult MergeVideos([FromBody] MergeVideosRequest request)
+    {
+        if (request.VideoPaths == null || request.VideoPaths.Count < 2)
+        {
+            return BadRequest("At least two video paths are required.");
+        }
+
+        try
+        {
+            var outputPath = Path.Combine("output", request.OutputFileName ?? "merged_video.mp4");
+            FFMpeg.Join(outputPath, request.VideoPaths.ToArray());
+
+            return Ok(new
+            {
+                Success = true,
+                OutputPath = outputPath
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                Success = false,
+                Error = ex.Message
+            });
+        }
+    }
+
+    //[HttpPost("merge-audio-video")]
+    //public IActionResult MergeAudioWithVideo(
+    //   [FromForm] IFormFile audioFile,
+    //   [FromForm] IFormFile videoFile,
+    //   [FromForm] string outputFileName)
+    //{
+    //    if (audioFile == null || videoFile == null)
+    //    {
+    //        return BadRequest("Both audio and video files are required.");
+    //    }
+
+    //    var audioPath = Path.Combine("uploads", audioFile.FileName);
+    //    var videoPath = Path.Combine("uploads", videoFile.FileName);
+    //    var outputPath = Path.Combine("output", outputFileName);
+
+    //    try
+    //    {
+    //        using (var audioStream = new FileStream(audioPath, FileMode.Create))
+    //        {
+    //            audioFile.CopyTo(audioStream);
+    //        }
+
+    //        using (var videoStream = new FileStream(videoPath, FileMode.Create))
+    //        {
+    //            videoFile.CopyTo(videoStream);
+    //        }
+
+    //        // Example usage of FFMpeg library (implementation not included)
+    //        FFMpeg.ReplaceAudio(videoPath, audioPath, outputPath);
+
+    //        return Ok(new { OutputPath = outputPath });
+    //    }
+    //    finally
+    //    {
+    //        // Clean up temporary files
+    //        if (System.IO.File.Exists(audioPath))
+    //        {
+    //            System.IO.File.Delete(audioPath);
+    //        }
+
+    //        if (System.IO.File.Exists(videoPath))
+    //        {
+    //            System.IO.File.Delete(videoPath);
+    //        }
+    //    }
+    //}
+
+    [HttpPost("add-audio")]
+    public IActionResult AddAudio([FromBody] AddAudioRequest request)
+    {
+        if (string.IsNullOrEmpty(request.VideoPath) || string.IsNullOrEmpty(request.AudioPath))
+        {
+            return BadRequest("Both video and audio paths are required.");
+        }
+
+        try
+        {
+            var outputPath = Path.Combine("output", request.OutputFileName ?? "video_with_audio.mp4");
+            FFMpeg.ReplaceAudio(request.VideoPath, request.AudioPath, outputPath);
+
+            return Ok(new
+            {
+                Success = true,
+                OutputPath = outputPath
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                Success = false,
+                Error = ex.Message
+            });
+        }
+    }
+    [HttpPost("add-subtitles")]
+    public IActionResult AddSubtitles([FromBody] AddSubtitleRequest request)
+    {
+        if (string.IsNullOrEmpty(request.VideoPath) || string.IsNullOrEmpty(request.SubtitlePath))
+        {
+            return BadRequest("Both video and subtitle paths are required.");
+        }
+
+        try
+        {
+            var outputPath = Path.Combine("output", request.OutputFileName ?? "video_with_subtitle.mp4");
+
+            // Use FFMpegArguments to add subtitles
+            FFMpegArguments
+                .FromFileInput(request.VideoPath)
+                .OutputToFile(outputPath, true, options => options
+                    .WithCustomArgument($"-vf subtitles=\"{request.SubtitlePath}\"") // Add subtitles using custom argument
+                    .WithVideoCodec("libx264") // Ensure proper video codec
+                    .WithConstantRateFactor(23)
+                    .WithAudioCodec("aac"))
+                .ProcessSynchronously();
+
+            return Ok(new
+            {
+                Success = true,
+                OutputPath = outputPath
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                Success = false,
+                Error = ex.Message
+            });
+        }
     }
 }

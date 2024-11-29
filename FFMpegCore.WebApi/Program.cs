@@ -1,46 +1,31 @@
-﻿using NLog;
-using NLog.Web;
+﻿var builder = WebApplication.CreateBuilder(args);
 
-var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+// Add services to the container
+builder.Services.AddControllers();
 
-try
+// Add Swagger for API documentation
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+// Serve static files for your custom dashboard
+app.UseDefaultFiles(); // Enables default index.html if no specific file is requested
+app.UseStaticFiles();  // Enables serving static files from wwwroot
+
+// Enable Swagger
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    logger.Debug("Starting application");
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "FFMpegCore API v1");
+    c.RoutePrefix = "swagger"; // Swagger will now be available at /swagger
+});
 
-    var builder = WebApplication.CreateBuilder(args);
+// Map controllers
+app.MapControllers();
 
-    // Configure NLog as the logging provider
-    builder.Logging.ClearProviders();
-    builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
-    builder.Host.UseNLog();
-
-    // Add services to the container
-    builder.Services.AddControllers();
-    builder.Services.AddEndpointsApiExplorer(); // Enables discovery of endpoints
-    builder.Services.AddSwaggerGen();          // Adds Swagger services
-
-    var app = builder.Build();
-
-    // Configure Swagger middleware
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseSwagger();                      // Generates the Swagger JSON
-        app.UseSwaggerUI();                    // Serves the Swagger UI
-    }
-
-    app.UseHttpsRedirection();
-    app.UseAuthorization();
-    app.MapControllers();
-
-    app.Run();
-}
-catch (Exception ex)
-{
-    logger.Error(ex, "Application stopped because of an exception");
-    throw;
-}
-finally
-{
-    // Ensure proper shutdown of NLog
-    LogManager.Shutdown();
-}
+app.Run();

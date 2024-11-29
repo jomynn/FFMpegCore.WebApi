@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FFMpegCore Dashboard</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>FFMpegCore Web API Dashboard</h1>
+    </header>
+    <main>
+        <!-- Merge Multiple Videos -->
+        <section id="mergeVideos">
+            <h2>Merge Multiple Videos</h2>
+            <form id="mergeVideosForm">
+                <input type="file" id="videoFiles" name="videoFiles" accept="video/*" multiple>
+                <input type="text" id="mergedVideoName" name="mergedVideoName" placeholder="Output File Name (e.g., merged.mp4)">
+                <button type="submit">Merge Videos</button>
+            </form>
+        </section>
+
+        <!-- Merge Audio + Video -->
+        <section id="mergeAudioVideo">
+            <h2>Merge Audio with Video</h2>
+            <form id="mergeAudioVideoForm">
+                <label for="audioFile">Audio File:</label>
+                <input type="file" id="audioFile" name="audioFile" accept="audio/*">
+
+                <label for="videoFileForAudio">Video File:</label>
+                <input type="file" id="videoFileForAudio" name="videoFileForAudio" accept="video/*">
+
+                <input type="text" id="audioVideoOutputName" name="audioVideoOutputName" placeholder="Output File Name (e.g., audio_video.mp4)">
+                <button type="submit">Merge Audio + Video</button>
+            </form>
+        </section>
+
+        <!-- Progress and Output -->
+        <section id="progress">
+            <h2>Progress</h2>
+            <progress id="progressBar" max="100" value="0"></progress>
+            <p id="progressText">Progress: 0%</p>
+        </section>
+
+        <section id="output">
+            <h2>Output</h2>
+            <p id="outputMessage"></p>
+        </section>
+    </main>
+    <script src="/js/scripts.js"></script>
+</body>
+</html>
