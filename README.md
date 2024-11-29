@@ -9,6 +9,71 @@
 A .NET Standard FFMpeg/FFProbe wrapper for easily integrating media analysis and conversion into your .NET applications. Supports both synchronous and asynchronous calls
 
 # API
+FFMpegCore.WebApi
+ 1.0 
+OAS 3.0
+/swagger/v1/swagger.json
+## FFMpeg
+ 
+
+POST
+/api/FFMpeg/analyse
+Example Value
+Schema
+{
+  "inputFileName": "string",
+  "outputFileName": "string",
+  "width": 0,
+  "height": 0
+}
+
+POST
+/api/FFMpeg/convert
+Example Value
+Schema
+{
+  "inputFileName": "string",
+  "outputFileName": "string",
+  "width": 0,
+  "height": 0
+}
+
+POST
+/api/FFMpeg/snapshot
+Example Value
+Schema
+{
+  "inputFileName": "string",
+  "outputFileName": "string",
+  "width": 0,
+  "height": 0
+}
+
+
+POST
+/api/FFMpeg/extract-audio
+Example Value
+Schema
+{
+  "inputFileName": "string",
+  "outputFileName": "string",
+  "width": 0,
+  "height": 0
+}
+
+POST
+/api/FFMpeg/join-videos
+Example Value
+Schema
+{
+  "inputFileNames": [
+    "string"
+  ],
+  "outputFileName": "string"
+}
+
+GET
+/api/FFMpeg/process-with-progress
 
 ## FFProbe
 Use FFProbe to analyze media files:
