@@ -1,3 +1,7 @@
+Addition project 
+FFMpegCore.WebApi
+
+
 # [FFMpegCore](https://www.nuget.org/packages/FFMpegCore/) 
 [![NuGet Badge](https://buildstats.info/nuget/FFMpegCore)](https://www.nuget.org/packages/FFMpegCore/)
 [![GitHub issues](https://img.shields.io/github/issues/rosenbjerg/FFMpegCore)](https://github.com/rosenbjerg/FFMpegCore/issues)
@@ -18,6 +22,7 @@ OAS 3.0
 
 POST
 /api/FFMpeg/analyse
+
 Example Value
 Schema
 {
@@ -29,6 +34,7 @@ Schema
 
 POST
 /api/FFMpeg/convert
+
 Example Value
 Schema
 {
@@ -40,6 +46,7 @@ Schema
 
 POST
 /api/FFMpeg/snapshot
+
 Example Value
 Schema
 {
@@ -52,6 +59,7 @@ Schema
 
 POST
 /api/FFMpeg/extract-audio
+
 Example Value
 Schema
 {
@@ -63,6 +71,7 @@ Schema
 
 POST
 /api/FFMpeg/join-videos
+
 Example Value
 Schema
 {
