@@ -1,0 +1,6 @@
+@FFMpegCore.WebApi_HostAddress = http://localhost:5148
+
+GET {{FFMpegCore.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
