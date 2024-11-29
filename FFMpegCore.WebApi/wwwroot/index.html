@@ -11,43 +11,91 @@
         <h1>FFMpegCore Web API Dashboard</h1>
     </header>
     <main>
-        <!-- Merge Multiple Videos -->
-        <section id="mergeVideos">
-            <h2>Merge Multiple Videos</h2>
-            <form id="mergeVideosForm">
-                <input type="file" id="videoFiles" name="videoFiles" accept="video/*" multiple>
-                <input type="text" id="mergedVideoName" name="mergedVideoName" placeholder="Output File Name (e.g., merged.mp4)">
-                <button type="submit">Merge Videos</button>
+        <section id="Login">
+            <h1>Login</h1>
+            <form id="loginForm">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required><br><br>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required><br><br>
+                <button type="submit">Login</button>
             </form>
         </section>
+            <!-- Merge Multiple Videos -->
+            <section id="mergeVideos">
+                <h2>Merge Multiple Videos</h2>
+                <form id="mergeVideosForm">
+                    <input type="file" id="videoFiles" name="videoFiles" accept="video/*" multiple>
+                    <input type="text" id="mergedVideoName" name="mergedVideoName" placeholder="Output File Name (e.g., merged.mp4)">
+                    <button type="submit">Merge Videos</button>
+                </form>
+            </section>
 
-        <!-- Merge Audio + Video -->
-        <section id="mergeAudioVideo">
-            <h2>Merge Audio with Video</h2>
-            <form id="mergeAudioVideoForm">
-                <label for="audioFile">Audio File:</label>
-                <input type="file" id="audioFile" name="audioFile" accept="audio/*">
+            <!-- Merge Audio + Video -->
+            <section id="mergeAudioVideo">
+                <h2>Merge Audio with Video</h2>
+                <form id="mergeAudioVideoForm">
+                    <label for="audioFile">Audio File:</label>
+                    <input type="file" id="audioFile" name="audioFile" accept="audio/*">
 
-                <label for="videoFileForAudio">Video File:</label>
-                <input type="file" id="videoFileForAudio" name="videoFileForAudio" accept="video/*">
+                    <label for="videoFileForAudio">Video File:</label>
+                    <input type="file" id="videoFileForAudio" name="videoFileForAudio" accept="video/*">
 
-                <input type="text" id="audioVideoOutputName" name="audioVideoOutputName" placeholder="Output File Name (e.g., audio_video.mp4)">
-                <button type="submit">Merge Audio + Video</button>
-            </form>
-        </section>
+                    <input type="text" id="audioVideoOutputName" name="audioVideoOutputName" placeholder="Output File Name (e.g., audio_video.mp4)">
+                    <button type="submit">Merge Audio + Video</button>
+                </form>
+            </section>
 
-        <!-- Progress and Output -->
-        <section id="progress">
-            <h2>Progress</h2>
-            <progress id="progressBar" max="100" value="0"></progress>
-            <p id="progressText">Progress: 0%</p>
-        </section>
+            <!-- Progress and Output -->
+            <section id="progress">
+                <h2>Progress</h2>
+                <progress id="progressBar" max="100" value="0"></progress>
+                <p id="progressText">Progress: 0%</p>
+            </section>
 
-        <section id="output">
-            <h2>Output</h2>
-            <p id="outputMessage"></p>
-        </section>
+            <section id="output">
+                <h2>Output</h2>
+                <p id="outputMessage"></p>
+            </section>
     </main>
     <script src="/js/scripts.js"></script>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent form submission
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.Token) {
+                        alert('Login successful! Your token: ' + data.Token);
+                        // Store the token in localStorage for future API requests
+                        localStorage.setItem('jwtToken', data.Token);
+                    } else {
+                        alert('Login successful, but no token received!');
+                    }
+                } else {
+                    const errorMessage = await response.text();
+                    alert('Login failed: ' + errorMessage);
+                }
+            } catch (error) {
+                console.error('Error during login:', error);
+                alert('An error occurred during login. Please try again.');
+            }
+        });
+    </script>
+
+
 </body>
 </html>

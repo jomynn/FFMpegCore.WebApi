@@ -3,7 +3,9 @@ using FFMpegCore;
 using FFMpegCore.Enums;
 using System.Drawing;
 using SkiaSharp;
+using Microsoft.AspNetCore.Authorization;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class FFMpegController : ControllerBase
@@ -11,6 +13,12 @@ public class FFMpegController : ControllerBase
     private readonly ILogger<FFMpegController> _logger;
     private readonly string UploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
     private readonly string OutputPath = Path.Combine(Directory.GetCurrentDirectory(), "output");
+
+    [HttpGet("protected")]
+    public IActionResult ProtectedEndpoint()
+    {
+        return Ok("This is a protected endpoint!");
+    }
 
     public FFMpegController(ILogger<FFMpegController> logger)
     {
