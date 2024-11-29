@@ -48,24 +48,35 @@ try
 
     var app = builder.Build();
 
-    app.UseHttpsRedirection();
+    //app.UseHttpsRedirection();
 
-    app.UseAuthentication();
-    app.UseAuthorization();
+    //app.UseAuthentication();
+    //app.UseAuthorization();
 
-    // Serve static files for your custom dashboard
-    app.UseDefaultFiles(); // Enables default index.html if no specific file is requested
-    app.UseStaticFiles();  // Enables serving static files from wwwroot
+    //// Serve static files for your custom dashboard
+    //app.UseDefaultFiles(); // Enables default index.html if no specific file is requested
+    //app.UseStaticFiles();  // Enables serving static files from wwwroot
 
     // Enable Swagger
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
+    if (app.Environment.IsDevelopment())
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "FFMpegCore API v1");
-        c.RoutePrefix = "swagger"; // Swagger will now be available at /swagger
-    });
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
+        {
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "FFMpegCore API v1");
+            c.RoutePrefix = "swagger"; // Swagger available at /swagger
+        });
+    }
 
-    // Map controllers
+    // Serve static files and set dashboard.html as the default
+    app.UseDefaultFiles(new DefaultFilesOptions
+    {
+        DefaultFileNames = new List<string> { "dashboard.html" } // Set dashboard.html as the default file
+    });
+    app.UseStaticFiles();
+
+    app.UseHttpsRedirection();
+    app.UseAuthorization();
     app.MapControllers();
 
     app.Run();
