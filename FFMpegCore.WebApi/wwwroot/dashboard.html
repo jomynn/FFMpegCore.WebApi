@@ -9,18 +9,24 @@
 <body>
     <header>
         <h1>Dashboard</h1>
-        <p id="welcomeMessage">Loading...</p>
+        <p id="welcomeMessage" aria-live="polite">>Loading...</p>
     </header>
     <main>
-        <div id="sidebar-container"></div> <!-- Placeholder for the sidebar -->
+        <div id="sidebar-container" aria-label="Sidebar"></div> <!-- Sidebar dynamically loaded -->
+
         <div class="content">
+            <!-- Add visually distinct error message container -->
+            <div id="errorMessage" style="display: none; color: red; font-weight: bold;"></div>
+
             <!-- Merge Multiple Videos -->
-            <section id="mergeVideos">
+            <section id="mergeVideosSection">
                 <h2>Merge Multiple Videos</h2>
-                <form id="mergeVideosForm">
-                    <input type="file" id="videoFiles" name="videoFiles" accept="video/*" multiple>                   
+                <form id="mergeVideosForm" onsubmit="mergeVideos(event)">
+                    <label for="videoPaths">Select Video Files:</label>
+                    <input type="file" id="videoPaths" name="videoPaths" accept="video/*" multiple>
                     <button type="submit">Merge Videos</button>
                 </form>
+                <p id="outputMessage"></p> <!-- Placeholder for success or error messages -->
             </section>
 
             <!-- Merge Audio + Video -->
@@ -55,9 +61,10 @@
             <a href="/swagger" target="_blank">Go to Swagger Documentation</a>
         </section>
     </footer>
-    <script src="/js/scripts.js"></script>
-    <script src="/js/sidebar.js"></script>
-    <script src="/js/jwtToken.js"></script>
-    
+    <script type="module" src="/js/jwtToken.js"></script>
+    <script type="module" src="/js/sidebar.js"></script>
+    <script type="module" src="/js/scripts.js"></script>
+
+
 </body>
 </html>

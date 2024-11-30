@@ -1,11 +1,12 @@
-"profiles": {
-  "FFMpegCore.WebApi": {
-    "commandName": "Project",
-    "dotnetRunMessages": true,
-    "launchBrowser": true,
-    "applicationUrl": "https://localhost:7148;http://localhost:5148",
-    "environmentVariables": {
-      "ASPNETCORE_ENVIRONMENT": "Development"
+{
+  "profiles": {
+    "YourProjectName": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://*:0" // Let ASP.NET Core bind to an available port
+      },
+      "launchUrl": "dashboard.html"
     }
   }
 }

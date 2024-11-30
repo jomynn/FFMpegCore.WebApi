@@ -18,13 +18,27 @@ try
     builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
     builder.Host.UseNLog();
 
-    
-
     // Configure JWT
     var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
     if (jwtSettings == null || string.IsNullOrWhiteSpace(jwtSettings.Key))
     {
-        throw new InvalidOperationException("JWT configuration is missing or invalid in appsettings.json.");
+        //throw new InvalidOperationException(
+        //    "JWT configuration is missing or invalid in appsettings.json. Please ensure the 'Jwt' section includes 'Key', 'Issuer', and 'Audience'.");
+        jwtSettings = new JwtSettings
+        {
+            Key = "fE84he8$45@9plKzM0Nq!xRvtD6Jw7YB",
+            Issuer = "YourApp",
+            Audience = "YourAppUsers",
+            TokenLifetimeMinutes = 60
+        };
+        Console.WriteLine("Warning: Using fallback JWT key.");
+    }
+
+    Console.WriteLine($"JWT Settings Loaded: Issuer={jwtSettings.Issuer}, Audience={jwtSettings.Audience}");
+
+    if (jwtSettings.Key.Length < 32)
+    {
+        throw new InvalidOperationException("JWT signing key must be at least 256 bits (32 characters) long.");
     }
 
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -41,6 +55,12 @@ try
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
             };
         });
+
+    // Log JWT configuration (optional)
+ 
+    logger.Info("JWT authentication configured with Issuer: {Issuer} and Audience: {Audience}",
+        jwtSettings.Issuer, jwtSettings.Audience);
+
     // Add services to the container
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlite("Data Source=JobLogs.db"));
@@ -64,6 +84,14 @@ try
     });
 
     var app = builder.Build();
+
+    // Log the dynamically assigned URL
+    var serverAddresses = app.Urls;
+    Console.WriteLine("Application is running on the following URLs:");
+    foreach (var address in serverAddresses)
+    {
+        Console.WriteLine(address);
+    }
 
     // Migrate database on startup
     using (var scope = app.Services.CreateScope())
@@ -89,6 +117,8 @@ try
     //// Serve static files for your custom dashboard
     //app.UseDefaultFiles(); // Enables default index.html if no specific file is requested
     //app.UseStaticFiles();  // Enables serving static files from wwwroot
+    
+    
 
     // Enable Swagger
     if (app.Environment.IsDevelopment())
@@ -101,17 +131,26 @@ try
         });
     }
 
-    // Serve static files and set dashboard.html as the default
-    app.UseDefaultFiles(new DefaultFilesOptions
+    // Enable static files (to serve HTML, CSS, JS, etc.)
+    app.UseDefaultFiles(); // This ensures index.html or dashboard.html is served by default
+    app.UseStaticFiles();  // Serves static files from wwwroot folder
+    // Configure the routing to default to dashboard.html
+    app.UseRouting();
+
+    app.Use(async (context, next) =>
     {
-        DefaultFileNames = new List<string> { "dashboard.html" } // Set dashboard.html as the default file
+        if (context.Request.Path == "/")
+        {
+            context.Response.Redirect("/dashboard.html", permanent: false);
+            return;
+        }
+
+        await next();
     });
-    app.UseStaticFiles();
 
     app.UseHttpsRedirection();
     app.UseAuthorization();
     app.MapControllers();
-
     app.Run();
 
 }

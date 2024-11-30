@@ -22,7 +22,7 @@
             </div>
         </div>
     </main>
-    <script src="/js/sidebar.js"></script>
+    <script type="module" src="/js/sidebar.js"></script>
     <script src="/js/jwtToken.js"></script>
     <script>
         // Mock API data; replace with actual data fetching logic if needed
@@ -67,19 +67,19 @@
         apiEndpoints.forEach(endpoint => {
             const li = document.createElement("li");
             li.innerHTML = `
-                                <div class="endpoint">
-                                    <span>${endpoint.method}</span> - <code>${endpoint.route}</code>
-                                </div>
-                                <div class="parameters">
-                                    <h4>Parameters:</h4>
-                                    ${endpoint.parameters.length > 0
+                                        <div class="endpoint">
+                                            <span>${endpoint.method}</span> - <code>${endpoint.route}</code>
+                                        </div>
+                                        <div class="parameters">
+                                            <h4>Parameters:</h4>
+                                            ${endpoint.parameters.length > 0
                     ? endpoint.parameters.map(param => `
-                                                <p><strong>${param.name}</strong> (${param.type}) - ${param.description}</p>
-                                              `).join("")
+                                                        <p><strong>${param.name}</strong> (${param.type}) - ${param.description}</p>
+                                                      `).join("")
                     : "<p class='no-parameters'>No parameters required</p>"
                 }
-                                </div>
-                            `;
+                                        </div>
+                                    `;
             apiListElement.appendChild(li);
         });
     </script>

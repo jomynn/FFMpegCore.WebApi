@@ -1,0 +1,22 @@
+﻿<section class="sidebar">
+    <nav>
+        <h2>Menu</h2>
+        <a href="/dashboard.html" class="active">Dashboard</a>
+        <a href="/joblogs.html">Job Logs</a>
+        <a href="/renderlogs.html">Render Logs</a>
+        <a href="/settings.html">Settings</a>
+        <a href="/api-status.html">Api Status.</a>
+    </nav>
+    <hr />
+    <h2>User Detail</h2>
+    <div id="sharedUserDetails" class="user-details">
+        <!-- User details will be dynamically loaded here -->
+    </div>
+</section>
+<script>// Dynamically load the login details partial
+    async function loadUserDetails() {
+        const response = await fetch("./login-details.html");
+        const html = await response.text();
+        document.getElementById("sharedUserDetails").innerHTML = html;
+    }
+    loadUserDetails();</script>

@@ -32,7 +32,7 @@
             </table>
         </div>
     </main>
-    <script src="/js/sidebar.js"></script>
+    <script type="module" src="/js/sidebar.js"></script>
     <script src="/js/jwtToken.js"></script>
     <script>
         // Fetch render logs from the API
@@ -43,13 +43,13 @@
                 data.forEach(log => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                                                <td>${log.videoId}</td>
-                                                <td>${log.status}</td>
-                                                <td>${log.resolution}</td>
-                                                <td>${log.durationSeconds}</td>
-                                                <td>${log.renderingTime}</td>
-                                                <td>${log.createDate}</td>
-                                            `;
+                                                        <td>${log.videoId}</td>
+                                                        <td>${log.status}</td>
+                                                        <td>${log.resolution}</td>
+                                                        <td>${log.durationSeconds}</td>
+                                                        <td>${log.renderingTime}</td>
+                                                        <td>${log.createDate}</td>
+                                                    `;
                     tableBody.appendChild(row);
                 });
             })

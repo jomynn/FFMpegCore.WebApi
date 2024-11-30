@@ -1,34 +1,47 @@
-﻿// Retrieve the token from localStorage
-const token = localStorage.getItem('jwtToken');
+﻿// Define the base API URL dynamically
+import { apiBaseUrl } from './shared.js';
+function decodeToken(token) {
+    const payload = token.split('.')[1];
+    const decoded = JSON.parse(atob(payload));
+    return decoded;
+}
 
-if (!token) {
-    alert('You are not logged in!');
-    window.location.href = '/index.html'; // Redirect to login if no token
+// Retrieve the token from localStorage
+const token = localStorage.getItem("authToken");
+
+if (token) {
+    const decodedToken = decodeToken(token);
+    const expiry = decodedToken.exp * 1000; // Convert to milliseconds
+
+    if (Date.now() >= expiry) {
+        alert("Session expired. Please log in again.");
+        localStorage.removeItem("authToken");
+        window.location.href = "/login.html"; // Redirect to login
+    } else {
+        console.log("Token is valid.");
+    }
 } else {
-    // Display a message with the token or fetch protected data
-    // document.getElementById('welcomeMessage').textContent = 'Welcome to the Dashboard! Your token: ' + token;
-    document.getElementById('welcomeMessage').textContent = 'Welcome to the Dashboard! Your ^_*';
+    alert("Authentication token is missing. Please log in again.");
+    window.location.href = "/login.html"; // Redirect to login
+}
 
-    // Example: Fetch protected data using the token
-    fetch('/api/auth/protected-endpoint', {
-        method: 'GET',
+try {
+    const response = await fetch(`${apiBaseUrl}/auth/protected-endpoint`, {
+        method: "GET",
         headers: {
-            'Authorization': `Bearer ${token}`
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
         }
-    })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error('Failed to fetch protected data.');
-            }
-        })
-        .then(data => {
-            console.log('Protected data:', data);
-        })
-        .catch(error => {
-            console.error(error);
-            alert('Failed to fetch protected data. Please log in again.');
-            window.location.href = '/index.html'; // Redirect to login on error
-        });
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch protected data.");
+    }
+
+    const data = await response.json();
+    console.log("Protected data:", data);
+} catch (error) {
+    console.error("Error fetching protected data:", error);
+    alert("Failed to fetch protected data. Please log in again.");
+    window.location.href = "/login.html"; // Redirect to login
 }

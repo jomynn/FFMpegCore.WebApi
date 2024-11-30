@@ -31,7 +31,7 @@
             </table>
         </div>
     </main>
-    <script src="/js/sidebar.js"></script>
+    <script type="module" src="/js/sidebar.js"></script>
     <script src="/js/jwtToken.js"></script>
     <script>
         // Fetch job logs from the API
@@ -42,12 +42,12 @@
                 data.forEach(log => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                                                <td>${log.id}</td>
-                                                <td>${log.jobName}</td>
-                                                <td>${log.status}</td>
-                                                <td>${log.details}</td>
-                                                <td>${log.createdAt}</td>
-                                            `;
+                                                    <td>${log.id}</td>
+                                                    <td>${log.jobName}</td>
+                                                    <td>${log.status}</td>
+                                                    <td>${log.details}</td>
+                                                    <td>${log.createdAt}</td>
+                                                `;
                     tableBody.appendChild(row);
                 });
             })

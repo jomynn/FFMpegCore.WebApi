@@ -5,79 +5,113 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-[ApiController]
-[Route("api/[controller]")]
-public class AuthController : ControllerBase
+namespace YourNamespace.Controllers
 {
-    private readonly ILogger<AuthController> _logger;
-    private readonly JwtSettings _jwtSettings;
-
-    public AuthController(JwtSettings jwtSettings, ILogger<AuthController> logger)
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AuthController : ControllerBase
     {
-        _jwtSettings = jwtSettings;
-        _logger = logger;
-    }
+        private readonly ILogger<FFMpegController> _logger;
+        private readonly IConfiguration _configuration;
 
-    [HttpPost("login")]
-    public IActionResult Login([FromBody] LoginRequest request)
-    {
-        _logger.LogInformation("AuthController.Login() called");
-
-        try
+        public AuthController(IConfiguration configuration, ILogger<FFMpegController> logger)
         {
-            if (request.Username != "admin" || request.Password != "password")
+            _configuration = configuration;
+            _logger = logger;
+        }
+
+        [Authorize]
+        [HttpGet("protected-endpoint")]
+        public IActionResult GetProtectedData()
+        {
+            try
             {
-                return Unauthorized("Invalid credentials.");
+                return Ok(new { message = "This is protected data." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred: " + ex.Message });
+            }
+        }
+
+        // POST: api/Auth/Login
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] LoginRequest request)
+        {
+            if (request == null || string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
+            {
+                _logger.LogWarning($"Login Invalid username or password: ");
+                return BadRequest(new { message = "Invalid username or password." });
             }
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_jwtSettings.Key);
-
-            var now = DateTime.UtcNow;
-
-            var tokenDescriptor = new SecurityTokenDescriptor
+            try
             {
-                Subject = new ClaimsIdentity(new[]
+                // Validate user
+                if (!ValidateUser(request.Username, request.Password))
                 {
-        new Claim(ClaimTypes.Name, request.Username)
-    }),
-                NotBefore = now,
-                Expires = now.AddMinutes(_jwtSettings.TokenLifetimeMinutes).AddSeconds(1), // Add 1 second buffer
-                Issuer = _jwtSettings.Issuer,
-                Audience = _jwtSettings.Audience,
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                    return Unauthorized(new { message = "Invalid username or password." });
+                }
+
+                // Generate JWT token
+                var token = GenerateJwtToken(request.Username);
+                return Ok(new { token });
+            }
+            catch (Exception ex)
+            {
+                // Ensure exceptions return JSON
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        private static bool ValidateUser(string username, string password)
+        {
+            // Replace with your own user validation logic
+            return username == "admin" && password == "password"; // Example only, don't use in production
+        }
+
+        private string GenerateJwtToken(string username)
+        {
+            var jwtSettings = _configuration.GetSection("Jwt").Get<JwtSettings>();
+
+            if (jwtSettings == null || string.IsNullOrWhiteSpace(jwtSettings.Key))
+            {
+                throw new InvalidOperationException("JWT signing key is missing or invalid.");
+            }
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Name, username),
+                new Claim(ClaimTypes.Role, "User") // Example role claim
             };
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var tokenString = tokenHandler.WriteToken(token);
+            var token = new JwtSecurityToken(
+                issuer: jwtSettings.Issuer,
+                audience: jwtSettings.Audience,
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(jwtSettings.TokenLifetimeMinutes),
+                signingCredentials: credentials
+            );
 
-            // Return the token in a JSON response
-            return Ok(new
-            {
-                Token = tokenString
-            });
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
-        catch (Exception ex)
+
+        // Request Model for Login
+        public class LoginRequest
         {
-            _logger.LogError(ex, "An error occurred in AuthController.Login()");
-            return StatusCode(500, "Internal Server Error");
+            public required string Username { get; set; }
+            public required string Password { get; set; }
         }
-    }
 
-    // New protected endpoint
-    [Authorize] // Require JWT for access
-    [HttpGet("protected-endpoint")]
-    public IActionResult GetProtectedData()
-    {
-        var userName = User.Identity?.Name; // Retrieve the username from the JWT
-        var data = new
+        // JwtSettings Configuration Class
+        public class JwtSettings
         {
-            Message = $"Hello {userName}, this is protected data.",
-            Timestamp = DateTime.UtcNow
-        };
-
-        return Ok(data);
+            public required string Key { get; set; }
+            public required string Issuer { get; set; }
+            public required string Audience { get; set; }
+            public int TokenLifetimeMinutes { get; set; }
+        }
     }
 }
-

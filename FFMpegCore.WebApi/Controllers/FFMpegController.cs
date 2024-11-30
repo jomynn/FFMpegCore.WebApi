@@ -219,10 +219,11 @@ public class FFMpegController : ControllerBase
             .ProcessAsynchronously();
     }
 
+    [Authorize]
     [HttpPost("merge-videos")]
-    public IActionResult MergeVideos([FromBody] MergeVideosRequest request)
+    public IActionResult MergeVideos([FromBody] List<string> request)
     {
-        if (request.VideoPaths == null || request.VideoPaths.Count < 2)
+        if (request == null || request.Count < 2)
         {
             return BadRequest("At least two video paths are required.");
         }
@@ -230,7 +231,7 @@ public class FFMpegController : ControllerBase
         try
         {
             var outputPath = Path.Combine("output", FileNameGenerator.GenerateOutputFileName(MP4));
-            FFMpeg.Join(outputPath, request.VideoPaths.ToArray());
+            FFMpeg.Join(outputPath, request.ToArray());
 
             return Ok(new
             {
@@ -282,7 +283,7 @@ public class FFMpegController : ControllerBase
             FFMpeg.ReplaceAudio(videoFilePath, audioFilePath, outputFilePath);
 
             // Return the output file path
-            var resultUrl = Url.Content($"~/output/{request.OutputFileName}");
+            var resultUrl = Url.Content($"~/output/{outputFilePath}");
             return Ok(new { Message = "Merge successful", OutputUrl = resultUrl });
         }
         catch (Exception ex)
