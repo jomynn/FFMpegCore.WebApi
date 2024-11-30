@@ -48,23 +48,52 @@ async function initializeSidebar() {
 
 async function loadSidebar() {
     try {
-        const sidebarContainer = document.getElementById("sidebar-container");
-
-        // Fetch the sidebar HTML
         const response = await fetch("/partials/sidebar.html");
         if (!response.ok) {
             throw new Error("Failed to load sidebar.");
         }
 
-        // Inject the sidebar content into the container
         const sidebarHtml = await response.text();
-        sidebarContainer.innerHTML = sidebarHtml;
+        document.getElementById("sidebar-container").innerHTML = sidebarHtml;
+
+        // Add logout event listener
+        document.getElementById("logoutLink").addEventListener("click", () => {
+            localStorage.removeItem("authToken");
+            window.location.href = "/login.html";
+        });
     } catch (error) {
         console.error("Error loading sidebar:", error);
         document.getElementById("sidebar-container").innerHTML = `<p style="color: red;">Error loading sidebar</p>`;
     }
 }
 
+async function loadLoginDetails() {
+    try {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+            throw new Error("Authentication token is missing. Please log in again.");
+        }
+
+        const decodedToken = JSON.parse(atob(token.split('.')[1]));
+        const username = decodedToken.name || "User";
+        const role = decodedToken.role || "Unknown";
+
+        const response = await fetch("/partials/login-details.html");
+        if (!response.ok) {
+            throw new Error("Failed to load login details.");
+        }
+
+        const loginDetailsHtml = await response.text();
+        document.getElementById("login-detail-container").innerHTML = loginDetailsHtml;
+
+        // Populate user details
+        document.getElementById("username").textContent = username;
+        document.getElementById("role").textContent = role;
+    } catch (error) {
+        console.error("Error loading login details:", error);
+        document.getElementById("login-detail-container").innerHTML = `<p style="color: red;">Error loading login details</p>`;
+    }
+}
 function displayError(message) {
     const errorMessage = document.getElementById("errorMessage");
     errorMessage.style.display = "block";
@@ -78,3 +107,5 @@ function redirectToLogin() {
 initializeSidebar();
 // Call the function to load the sidebar
 loadSidebar();
+
+loadLoginDetails();

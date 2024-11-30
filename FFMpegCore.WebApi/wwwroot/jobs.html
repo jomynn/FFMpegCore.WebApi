@@ -38,6 +38,7 @@
 </head>
 <body>
     <h1>API Job Results</h1>
+    <div id="login-detail-container"></div> <!-- Placeholder for login details -->
     <table id="jobResultsTable">
         <thead>
             <tr>
@@ -73,10 +74,10 @@
             const statusClass = result.status === "Success" ? "success" : "error";
 
             row.innerHTML = `
-                <td>${result.name}</td>
-                <td class="${statusClass}">${result.status}</td>
-                <td>${result.details}</td>
-            `;
+                    <td>${result.name}</td>
+                    <td class="${statusClass}">${result.status}</td>
+                    <td>${result.details}</td>
+                `;
             tableBody.appendChild(row);
         });
     </script>
