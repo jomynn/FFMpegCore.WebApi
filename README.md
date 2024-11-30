@@ -1,6 +1,19 @@
-# Addition project 
+## Enhance Feature web api project 
+# FFMpegCore.WebApi
+- WebApi
+  -- Header payload
+  -- Body Json Parameter
+- User Login authentication
+  -- Front end Web UI
+  -- Monitor Render Logs
+- Api Keys per User
+  -- Support Multi Users
+- Render Logs
+  -- Show Render details
+- Webhooks
+  -- Callback webhook when finish
 
-- FFMpegCore.WebApi
+  
 
 
 ## This project base on FFMpegCore
