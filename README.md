@@ -34,5 +34,5 @@ Copyright © 2023
 Released under [MIT license](https://github.com/rosenbjerg/FFMpegCore/blob/master/LICENSE)
 
 
-<a href="buymeacoffee.com/jomynn">
+<a href="buymeacoffee.com/jomynn"> Buymeacoffee
 <img src="https://downloads.intercomcdn.com/i/o/234105/0d29fbdf17e257cdfc2ba1ba/7103925065c5e9bd6ac7ac9efd453fd7.png"></a>
