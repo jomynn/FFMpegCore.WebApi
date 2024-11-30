@@ -34,5 +34,5 @@ Copyright © 2023
 Released under [MIT license](https://github.com/rosenbjerg/FFMpegCore/blob/master/LICENSE)
 
 
-<a class="no-underline" href="https://buymeacoffee.com/jomynn">Buy me Coffee .<img data-testid="logo-img" src="./Buymeacoffee.png" alt="Knowledge Base | Buy Me a Coffee" class="max-h-8 contrast-80 inline"></a>
+<a class="no-underline" href="https://buymeacoffee.com/jomynn"><img data-testid="logo-img" src="./Buymeacoffee.png" alt="Knowledge Base | Buy Me a Coffee" class="max-h-8 contrast-80 inline"> <br /> Buy me Coffee </a>
     
