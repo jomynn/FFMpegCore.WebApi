@@ -22,8 +22,13 @@ public class FileController : ControllerBase
                 return NotFound("Input folder does not exist.");
             }
 
+            var baseUrl = $"{Request.Scheme}://{Request.Host}/sample/input/";
             var files = Directory.GetFiles(folderPath)
-                                 .Select(Path.GetFileName)
+                                 .Select(file => new
+                                 {
+                                     FileName = Path.GetFileName(file),
+                                     FullPath = baseUrl + Path.GetFileName(file)
+                                 })
                                  .ToList();
 
             return Ok(files);

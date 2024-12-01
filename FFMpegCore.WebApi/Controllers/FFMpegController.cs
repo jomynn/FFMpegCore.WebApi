@@ -230,13 +230,76 @@ public class FFMpegController : ControllerBase
 
         try
         {
-            var outputPath = Path.Combine("output", FileNameGenerator.GenerateOutputFileName(MP4));
-            FFMpeg.Join(outputPath, request.ToArray());
+            // Temporary path to store downloaded files
+            var tempPath = Path.Combine("temp");
+            if (!Directory.Exists(tempPath))
+            {
+                Directory.CreateDirectory(tempPath);
+            }
+
+            var tempFiles = new List<string>();
+
+            foreach (var url in request)
+            {
+                try
+                {
+                    // Check if the file exists at the given URL
+                    using (var client = new HttpClient())
+                    {
+                        var response = client.GetAsync(url).Result;
+
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            return BadRequest($"File at URL '{url}' does not exist or cannot be accessed.");
+                        }
+
+                        // Download the file to the temp folder
+                        var fileName = Path.GetFileName(new Uri(url).LocalPath);
+                        var localFilePath = Path.Combine(tempPath, fileName);
+
+                        using (var fileStream = new FileStream(localFilePath, FileMode.Create))
+                        {
+                            response.Content.CopyToAsync(fileStream).Wait();
+                        }
+
+                        tempFiles.Add(localFilePath);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest($"Error processing file at URL '{url}': {ex.Message}");
+                }
+            }
+
+            // Output path for the merged video
+            var outputDirectory = Path.Combine("wwwroot", "output");
+            if (!Directory.Exists(outputDirectory))
+            {
+                Directory.CreateDirectory(outputDirectory);
+            }
+
+            var outputFileName = FileNameGenerator.GenerateOutputFileName("mp4");
+            var outputPath = Path.Combine(outputDirectory, outputFileName);
+
+            // Use FFMpeg to merge the downloaded files
+            FFMpeg.Join(outputPath, tempFiles.ToArray());
+
+            // Clean up temporary files
+            foreach (var file in tempFiles)
+            {
+                if (System.IO.File.Exists(file))
+                {
+                    System.IO.File.Delete(file);
+                }
+            }
+
+            // Generate a downloadable URL for the output file
+            var outputUrl = $"{Request.Scheme}://{Request.Host}/output/{outputFileName}";
 
             return Ok(new
             {
                 Success = true,
-                OutputPath = outputPath
+                OutputPath = outputUrl
             });
         }
         catch (Exception ex)
