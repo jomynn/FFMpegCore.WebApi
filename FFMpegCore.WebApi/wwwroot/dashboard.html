@@ -21,7 +21,7 @@
             <!-- Merge Multiple Videos -->
             <section id="mergeVideosSection">
                 <h2>Merge Multiple Videos</h2>
-                <form id="mergeVideosForm" onsubmit="mergeVideos(event)">
+                <form id="mergeVideosForm">
                     <label for="videoPaths">Select Video Files:</label>
                     <input type="file" id="videoPaths" name="videoPaths" accept="video/*" multiple>
                     <button type="submit">Merge Videos</button>
@@ -63,7 +63,14 @@
     </footer>
     <script type="module" src="/js/jwtToken.js"></script>
     <script type="module" src="/js/sidebar.js"></script>
-    <script type="module" src="/js/scripts.js"></script>
+
+    <script type="module">
+        import { mergeVideos } from './js/scripts.js';
+
+        // Attach the event listener to the form
+        const mergeVideosForm = document.getElementById("mergeVideosForm");
+        mergeVideosForm.addEventListener("submit", mergeVideos);
+    </script>
 
 
 </body>

@@ -3,55 +3,62 @@ import { apiBaseUrl } from './shared.js';
 
 console.log("API Base URL:", apiBaseUrl); // Debugging log to verify the base URL
 
-//const apiBaseUrl = "http://localhost:5148/api/FFMpeg";
-
-// Merge Multiple Videos
-async function mergeVideos(event) {
+ 
+export async function mergeVideos(event) {
     event.preventDefault();
 
     try {
-        const token = localStorage.getItem("authToken");
-        if (!token) {
-            console.error("Token not found in localStorage");
-            throw new Error("Authentication token not found. Please log in.");
-        }
-
         const videoFilesInput = document.getElementById("videoPaths");
 
         if (!videoFilesInput || videoFilesInput.files.length < 2) {
             throw new Error("Please select at least two video files.");
         }
 
-        const videoFiles = Array.from(videoFilesInput.files);
-        const videoPaths = await Promise.all(
-            videoFiles.map(file => toBase64(file))
-        );
+        // Extract video paths (e.g., filenames)
+        const videoPaths = Array.from(videoFilesInput.files).map(file => file.name);
 
-        const payload = {
-            VideoPaths: videoPaths
-        };
+        const payload = videoPaths; // Send the array of file names directly
 
-        const response = await fetch(`${apiBaseUrl}/merge-videos`, {
+        // Retrieve the JWT token from localStorage
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+            throw new Error("Authentication token is missing. Please log in again.");
+        }
+
+        const response = await fetch(`${apiBaseUrl}/ffmpeg/merge-videos`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                "Authorization": `Bearer ${token}` // Include the token
             },
             body: JSON.stringify(payload)
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.Error || "An error occurred while merging videos.");
+            const errorText = await response.text();
+            throw new Error(`Failed to merge videos: ${errorText}`);
         }
 
         const result = await response.json();
-        document.getElementById("outputMessage").innerText = `Merged video successfully: ${result.OutputPath}`;
+        document.getElementById("outputMessage").innerText = `Merged Video Path: ${result.OutputPath}`;
     } catch (error) {
         console.error("Error merging videos:", error);
         document.getElementById("outputMessage").innerText = `Error: ${error.message}`;
     }
 }
+
+
+// Utility function to convert a file to Base64
+function toBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+    });
+}
+
+
 
 
 
@@ -68,7 +75,7 @@ async function mergeAudioVideo(event) {
     formData.append("audioFile", audioFile);
     formData.append("videoFile", videoFile);
 
-    const response = await fetch(`${apiBaseUrl}/merge-audio-video`, {
+    const response = await fetch(`${apiBaseUrl}/ffmpeg/merge-audio-video`, {
         method: "POST",
         body: formData,
     });

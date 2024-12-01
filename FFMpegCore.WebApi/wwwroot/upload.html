@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Files</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Dashboard</h1>
+        <div id="login-detail-container"></div> <!-- Placeholder for login details -->
+    </header>
+    <main>
+        <div id="sidebar-container" aria-label="Sidebar"></div> <!-- Sidebar dynamically loaded -->
+
+        <div class="content">
+            <form id="uploadForm" enctype="multipart/form-data">
+                <label for="files">Select Files:</label>
+                <input type="file" id="files" name="files" accept="video/*,audio/*" multiple>
+                <button type="submit">Upload Files</button>
+            </form>
+            <p id="uploadMessage"></p>
+        </div>
+    </main>
+    <script>
+        document.getElementById("uploadForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const filesInput = document.getElementById("files");
+            const files = filesInput.files;
+
+            if (!files.length) {
+                alert("Please select at least one file.");
+                return;
+            }
+
+            const formData = new FormData();
+            for (const file of files) {
+                formData.append("files", file);
+            }
+
+            try {
+                const response = await fetch("/api/FileUpload/upload-files", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to upload files.");
+                }
+
+                const result = await response.json();
+                document.getElementById("uploadMessage").innerText = `${result.FileCount} file(s) uploaded successfully.`;
+            } catch (error) {
+                console.error("Error uploading files:", error);
+                document.getElementById("uploadMessage").innerText = `Error: ${error.message}`;
+            }
+        });
+    </script>
+    <script type="module" src="/js/jwtToken.js"></script>
+    <script type="module" src="/js/sidebar.js"></script>
+</body>
+</html>
