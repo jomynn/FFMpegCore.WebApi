@@ -8,16 +8,17 @@ export async function mergeVideos(event) {
     event.preventDefault();
 
     try {
-        const videoFilesInput = document.getElementById("videoPaths");
+        // Get all checked checkboxes
+        const selectedFiles = Array.from(document.querySelectorAll(".file-checkbox:checked"))
+            .map(checkbox => checkbox.value);
 
-        if (!videoFilesInput || videoFilesInput.files.length < 2) {
+        // Validate that at least two files are selected
+        if (selectedFiles.length < 2) {
             throw new Error("Please select at least two video files.");
         }
 
-        // Extract video paths (e.g., filenames)
-        const videoPaths = Array.from(videoFilesInput.files).map(file => file.name);
-
-        const payload = videoPaths; // Send the array of file names directly
+        // The payload should be a flat array of strings
+        const payload = selectedFiles;
 
         // Retrieve the JWT token from localStorage
         const token = localStorage.getItem("authToken");
@@ -29,9 +30,9 @@ export async function mergeVideos(event) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}` // Include the token
+                "Authorization": `Bearer ${token}`
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload) // Send the array of strings
         });
 
         if (!response.ok) {

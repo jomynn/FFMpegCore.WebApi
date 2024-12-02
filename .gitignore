@@ -3,6 +3,14 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Ignore all mp3 and mp4 files
+*.mp3
+*.mp4
+
+# Optionally ignore specific directories with mp3/mp4 files
+*/wwwroot/sample/input/*.mp3
+*/wwwroot/sample/input/*.mp4
+
 # User-specific files
 *.rsuser
 *.suo

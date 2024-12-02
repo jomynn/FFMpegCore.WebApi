@@ -230,8 +230,11 @@ public class FFMpegController : ControllerBase
 
         try
         {
-            // Temporary path to store downloaded files
-            var tempPath = Path.Combine("temp");
+            // Get the absolute path for the temporary folder
+            var tempBasePath = Path.GetTempPath(); // System temp directory
+            var tempPath = Path.Combine(tempBasePath, "YourAppName", "temp");
+
+            // Ensure the directory exists
             if (!Directory.Exists(tempPath))
             {
                 Directory.CreateDirectory(tempPath);
