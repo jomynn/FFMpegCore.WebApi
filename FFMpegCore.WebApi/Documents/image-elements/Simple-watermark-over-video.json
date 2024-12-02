@@ -1,0 +1,21 @@
+{
+  "resolution": "full-hd",
+  "scenes": [
+    {
+      "elements": [
+        {
+          "type": "video",
+          "src": "https://assets.json2video.com/assets/videos/beach-01.mp4"
+        },
+        {
+          "type": "image",
+          "src": "https://assets.json2video.com/assets/images/sunglasses-emoji-small.png",
+          "start": 3,
+          "duration": 5,
+          "x": 1800,
+          "y": 20
+        }
+      ]
+    }
+  ]
+}

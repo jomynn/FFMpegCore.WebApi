@@ -1,0 +1,40 @@
+{
+  "resolution": "full-hd",
+  "scenes": [
+    {
+      "comment": "Scene #1",
+      "elements": [
+        {
+          "type": "video",
+          "src": "https://assets.json2video.com/assets/videos/beach-01.mp4"
+        }
+      ]
+    },
+    {
+      "comment": "Scene #2",
+      "transition": {
+        "style": "circleopen",
+        "duration": 1.5
+      },
+      "elements": [
+        {
+          "type": "video",
+          "src": "https://assets.json2video.com/assets/videos/beach-02.mp4"
+        }
+      ]
+    },
+    {
+      "comment": "Scene #3",
+      "transition": {
+        "style": "fade",
+        "duration": 2
+      },
+      "elements": [
+        {
+          "type": "video",
+          "src": "https://assets.json2video.com/assets/videos/beach-03.mp4"
+        }
+      ]
+    }
+  ]
+}

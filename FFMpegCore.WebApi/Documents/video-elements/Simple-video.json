@@ -1,0 +1,13 @@
+{
+  "resolution": "full-hd",
+  "scenes": [
+    {
+      "elements": [
+        {
+          "type": "video",
+          "src": "https://assets.json2video.com/assets/videos/beach-01.mp4"
+        }
+      ]
+    }
+  ]
+}

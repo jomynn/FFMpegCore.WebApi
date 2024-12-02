@@ -1,0 +1,17 @@
+{
+  "resolution": "full-hd",
+  "quality": "high",
+  "draft": false,
+  "scenes": [
+    {
+      "background-color": "#4392F1",
+      "elements": [
+        {
+          "type": "text",
+          "text": "Hello world",
+          "duration": 10
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "resolution": "full-hd",
+  "quality": "high",
+  "scenes": [
+    {
+      "comment": "Scene #1",
+      "elements": [
+        {
+          "type": "image",
+          "src": "https://assets.json2video.com/assets/images/woman-01.jpg",
+          "y": -100
+        },
+        {
+          "type": "voice",
+          "text": "Hello Diego! Could you please introduce yourself in Italian?",
+          "voice": "en-US-AriaNeural",
+          "start": 1
+        }
+      ]
+    },
+    {
+      "comment": "Scene #2",
+      "elements": [
+        {
+          "type": "image",
+          "src": "https://assets.json2video.com/assets/images/man-01.jpg",
+          "y": -100
+        },
+        {
+          "type": "voice",
+          "text": "S\u00ec, certo, Aria. Mi chiamo Diego Rossi e sono di Firenze.",
+          "voice": "it-IT-DiegoNeural"
+        }
+      ]
+    }
+  ]
+}

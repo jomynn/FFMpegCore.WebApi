@@ -1,0 +1,47 @@
+{
+  "resolution": "full-hd",
+  "quality": "high",
+  "scenes": [
+    {
+      "duration": 10,
+      "elements": [
+        {
+          "type": "video",
+          "src": "https://assets.json2video.com/assets/videos/beach-01.mp4",
+          "scale": {
+            "width": 960,
+            "height": 540
+          }
+        },
+        {
+          "type": "video",
+          "src": "https://assets.json2video.com/assets/videos/beach-02.mp4",
+          "scale": {
+            "width": 960,
+            "height": 540
+          },
+          "x": 960
+        },
+        {
+          "type": "video",
+          "src": "https://assets.json2video.com/assets/videos/beach-03.mp4",
+          "scale": {
+            "width": 960,
+            "height": 540
+          },
+          "y": 540
+        },
+        {
+          "type": "video",
+          "src": "https://assets.json2video.com/assets/videos/beach-04.mp4",
+          "scale": {
+            "width": 960,
+            "height": 540
+          },
+          "x": 960,
+          "y": 540
+        }
+      ]
+    }
+  ]
+}

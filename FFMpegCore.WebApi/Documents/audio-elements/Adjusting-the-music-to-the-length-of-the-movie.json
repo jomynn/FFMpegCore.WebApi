@@ -1,0 +1,74 @@
+{
+  "id": "q8azbhvg",
+  "comment": "Audio example",
+  "width": 1920,
+  "height": 1080,
+  "draft": false,
+  "scenes": [
+    {
+      "id": "qlhg1xpe",
+      "comment": "Intro bumper",
+      "elements": [
+        {
+          "id": "q9fwzjpg",
+          "type": "component",
+          "component": "basic/000",
+          "settings": {
+            "headline": {
+              "text": [
+                "Example of adjusted music"
+              ],
+              "color": "white",
+              "font-family": "Roboto Mono",
+              "font-weight": "400",
+              "letter-spacing": "0.5px"
+            },
+            "body": {
+              "color": "white",
+              "text": [
+                ""
+              ],
+              "font-family": "Roboto Mono",
+              "font-weight": "400"
+            },
+            "card": {
+              "vertical-align": "center",
+              "text-align": "center",
+              "padding": "2vw"
+            }
+          },
+          "x": 0,
+          "y": 0,
+          "duration": 5,
+          "comment": "Simple card",
+          "position": "custom",
+          "width": -1,
+          "height": -1
+        }
+      ],
+      "background-color": "#000000"
+    },
+    {
+      "id": "qk1jl7du",
+      "comment": "Snowy landscape",
+      "elements": [
+        {
+          "id": "qh6ersxf",
+          "type": "video",
+          "src": "https://assets.json2video.com/assets/videos/landscape-01.mp4",
+          "fade-out": 2
+        }
+      ]
+    }
+  ],
+  "elements": [
+    {
+      "id": "qu658a67",
+      "type": "audio",
+      "src": "https://assets.json2video.com/assets/audios/advertime.mp3",
+      "duration": -2,
+      "fade-out": 3
+    }
+  ],
+  "resolution": "custom"
+}

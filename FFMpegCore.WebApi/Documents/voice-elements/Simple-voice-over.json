@@ -1,0 +1,25 @@
+{
+  "resolution": "full-hd",
+  "quality": "high",
+  "scenes": [
+    {
+      "comment": "Scene #1",
+      "elements": [
+        {
+          "type": "image",
+          "src": "https://assets.json2video.com/assets/images/space-apollo11-01.jpg",
+          "scale": {
+            "width": 1920,
+            "height": 1280
+          },
+          "zoom": 5
+        },
+        {
+          "type": "voice",
+          "text": "That's one small step for a man, one giant leap for mankind. Upon taking a \"small step\" onto the surface of the moon in 1969, Neil Armstrong uttered what would become one of history's most famous one-liners.",
+          "start": 1.5
+        }
+      ]
+    }
+  ]
+}

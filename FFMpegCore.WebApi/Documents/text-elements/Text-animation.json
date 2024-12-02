@@ -1,0 +1,25 @@
+{
+  "resolution": "full-hd",
+  "quality": "high",
+  "draft": true,
+  "scenes": [
+    {
+      "background-color": "#6BAA75",
+      "elements": [
+        {
+          "type": "text",
+          "style": "003",
+          "text": "JSON2Video is your video editing API",
+          "settings": {
+            "shadow": 0,
+            "font-size": "80px",
+            "font-family": "Inter",
+            "font-weight": "900"
+          },
+          "width": 960,
+          "duration": 5
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "resolution": "full-hd",
+  "quality": "high",
+  "draft": true,
+  "scenes": [
+    {
+      "elements": [
+        {
+          "type": "video",
+          "src": "https://assets.json2video.com/assets/videos/beach-01.mp4"
+        },
+        {
+          "type": "text",
+          "style": "001",
+          "text": "\"Lorem ipsum\" has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book",
+          "settings": {
+            "color": "#FFFFFF",
+            "font-size": "60px",
+            "font-family": "Roboto Condensed",
+            "shadow": 2,
+            "text-align": "left",
+            "vertical-align": "top"
+          },
+          "width": 960,
+          "x": 900,
+          "y": 50
+        }
+      ]
+    }
+  ]
+}

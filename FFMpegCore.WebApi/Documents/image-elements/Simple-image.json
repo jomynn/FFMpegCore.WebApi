@@ -1,0 +1,14 @@
+{
+  "resolution": "full-hd",
+  "scenes": [
+    {
+      "elements": [
+        {
+          "type": "image",
+          "src": "https://assets.json2video.com/assets/images/flower-bee.jpg",
+          "duration": 10
+        }
+      ]
+    }
+  ]
+}

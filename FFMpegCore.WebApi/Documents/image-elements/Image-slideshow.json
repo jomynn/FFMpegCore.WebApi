@@ -1,0 +1,48 @@
+{
+  "resolution": "full-hd",
+  "quality": "high",
+  "scenes": [
+    {
+      "comment": "Scene #1",
+      "transition": {
+        "style": "circleopen",
+        "duration": 1.5
+      },
+      "elements": [
+        {
+          "type": "image",
+          "src": "https://assets.json2video.com/assets/images/london-01.jpg",
+          "duration": 10
+        }
+      ]
+    },
+    {
+      "comment": "Scene #2",
+      "transition": {
+        "style": "wipeup",
+        "duration": 1.5
+      },
+      "elements": [
+        {
+          "type": "image",
+          "src": "https://assets.json2video.com/assets/images/london-02.jpg",
+          "duration": 10
+        }
+      ]
+    },
+    {
+      "comment": "Scene #3",
+      "transition": {
+        "style": "fade",
+        "duration": 1.5
+      },
+      "elements": [
+        {
+          "type": "image",
+          "src": "https://assets.json2video.com/assets/images/london-03.jpg",
+          "duration": 10
+        }
+      ]
+    }
+  ]
+}

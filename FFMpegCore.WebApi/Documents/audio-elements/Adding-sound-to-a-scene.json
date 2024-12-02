@@ -1,0 +1,45 @@
+{
+  "resolution": "full-hd",
+  "quality": "high",
+  "scenes": [
+    {
+      "comment": "Scene #1",
+      "elements": [
+        {
+          "type": "video",
+          "src": "https://assets.json2video.com/assets/videos/thunder-storm-02.mp4"
+        },
+        {
+          "type": "audio",
+          "src": "https://assets.json2video.com/assets/audios/thunder-01.mp3"
+        },
+        {
+          "type": "audio",
+          "src": "https://assets.json2video.com/assets/audios/thunder-02.mp3",
+          "start": 2.5
+        },
+        {
+          "type": "audio",
+          "src": "https://assets.json2video.com/assets/audios/thunder-01.mp3",
+          "start": 5.2
+        },
+        {
+          "type": "audio",
+          "src": "https://assets.json2video.com/assets/audios/thunder-02.mp3",
+          "start": 8
+        }
+      ],
+      "duration": 10
+    },
+    {
+      "comment": "Scene #2",
+      "elements": [
+        {
+          "type": "video",
+          "src": "https://assets.json2video.com/assets/videos/rain-01.mp4"
+        }
+      ],
+      "duration": 10
+    }
+  ]
+}

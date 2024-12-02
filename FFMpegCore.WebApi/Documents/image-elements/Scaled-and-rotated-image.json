@@ -1,0 +1,28 @@
+{
+  "resolution": "full-hd",
+  "scenes": [
+    {
+      "elements": [
+        {
+          "type": "image",
+          "src": "https://assets.json2video.com/assets/images/flower-bee.jpg",
+          "duration": 15
+        },
+        {
+          "type": "image",
+          "src": "https://assets.json2video.com/assets/images/sunglasses-emoji-small.png",
+          "x": 835,
+          "y": 575,
+          "scale": {
+            "width": 250,
+            "height": 250
+          },
+          "rotate": {
+            "angle": 360,
+            "speed": 1
+          }
+        }
+      ]
+    }
+  ]
+}

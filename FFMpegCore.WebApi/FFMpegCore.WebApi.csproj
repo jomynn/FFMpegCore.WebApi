@@ -31,4 +31,9 @@
     <ProjectReference Include="..\FFMpegCore\FFMpegCore.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Documents\component-elements\" />
+    <Folder Include="Documents\html-elements\" />
+  </ItemGroup>
+
 </Project>
