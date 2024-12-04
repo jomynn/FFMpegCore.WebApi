@@ -151,7 +151,17 @@ Acknowledgments
 This project is based on the excellent work in FFMpegCore by Rosen Bjerg.
 
 vbnet
- 
+
+
+Acknowledgments
+```bash
+Special thanks to <a href="https://github.com/rosenbjerg">Rosen Bjerg</a> for the original <a href="https://github.com/rosenbjerg/FFMpegCore">FFMpegCore</a> project that made this enhancement possible.
+```
+
+
+This version emphasizes the "output" aspect of the project, ensuring users understand how to ac
+
+
 
 This `README.md` focuses on providing clear instructions for downloading and using the project, emphasizing the downloadable output feature. Let me know if further customization is needed! 🚀
 
