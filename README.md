@@ -91,8 +91,7 @@ https://localhost:5001/output/merged-video.mp4
 ```
 
 ## File Structure
-plaintext
- 
+```bash
 FFMpegCore.WebApi/
 ├── wwwroot/
 │   ├── sample/
@@ -110,6 +109,7 @@ FFMpegCore.WebApi/
 ├── Program.cs           # Main entry point for the application
 ├── appsettings.json     # Configuration file
 └── README.md            # Project documentation
+```
 
 # Downloadable Output
 All processed files are saved in the wwwroot/output directory. The API provides a URL pointing to these files, allowing for direct downloads.
@@ -147,16 +147,11 @@ git push origin feature-name
 License
 This project is licensed under the MIT License. See the LICENSE file for details.
 
-Acknowledgments
-This project is based on the excellent work in FFMpegCore by Rosen Bjerg.
+ 
 
-vbnet
-
-
-Acknowledgments
-```bash
+# Acknowledgments
+ 
 Special thanks to <a href="https://github.com/rosenbjerg">Rosen Bjerg</a> for the original <a href="https://github.com/rosenbjerg/FFMpegCore">FFMpegCore</a> project that made this enhancement possible.
-```
 
 
 This version emphasizes the "output" aspect of the project, ensuring users understand how to ac
