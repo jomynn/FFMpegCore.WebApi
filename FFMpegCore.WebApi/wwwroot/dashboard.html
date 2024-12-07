@@ -46,6 +46,19 @@
                 <p id="outputMessage2"></p> <!-- Placeholder for success or error messages -->
             </section>
 
+            <!-- Analyse Media -->
+            <section id="analyseMedia">
+                <h1>Analyse Media</h1>
+                <form id="analyseMediaForm">
+                    <label for="fileList3">Select Media Files:</label>
+                    <div id="fileCheckboxContainer3">
+                        <!-- Checkboxes will be dynamically populated -->
+                    </div>
+                    <textarea id="selectedFiles3" name="selectedFiles" placeholder="Selected files will appear here..." readonly></textarea>                    <button type="submit">Submit Analy Media</button>
+                </form>
+                <p id="outputMessage3"></p> <!-- Placeholder for success or error messages -->
+            </section>
+
             <!-- Progress and Output -->
             <section id="progress">
                 <h2>Progress</h2>
@@ -68,8 +81,7 @@
     <script type="module" src="/js/jwtToken.js"></script>
     <script type="module" src="/js/sidebar.js"></script>
 
-    <script type="module">
-        import { mergeVideos } from './js/scripts.js';
+    <script type="module"> import { mergeVideos } from './js/scripts.js';
 
         // Attach the event listener to the form
         const mergeVideosForm = document.getElementById("mergeVideosForm");

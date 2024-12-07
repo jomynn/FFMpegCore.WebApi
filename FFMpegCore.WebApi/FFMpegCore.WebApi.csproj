@@ -11,6 +11,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\FFMpegController.AddAudio.cs" />
+    <Compile Remove="Controllers\FFMpegController.AddCaption.cs" />
+    <Compile Remove="Controllers\FFMpegController.AddSubtitles.cs" />
+    <Compile Remove="Controllers\FFMpegController.AnalyseVideo.cs" />
+    <Compile Remove="Controllers\FFMpegController.ConvertVideo.cs" />
+    <Compile Remove="Controllers\FFMpegController.CreateSnapshot.cs" />
+    <Compile Remove="Controllers\FFMpegController.ExtractAudio.cs" />
+    <Compile Remove="Controllers\FFMpegController.JoinVideos.cs" />
+    <Compile Remove="Controllers\FFMpegController.MergeAudioWIthVideo.cs" />
+    <Compile Remove="Controllers\FFMpegController.MergeVideo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FFMpegCore.Extensions.System.Drawing.Common" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
@@ -35,6 +48,7 @@
   <ItemGroup>
     <Folder Include="Documents\component-elements\" />
     <Folder Include="Documents\html-elements\" />
+    <Folder Include="Libs\" />
   </ItemGroup>
 
 </Project>

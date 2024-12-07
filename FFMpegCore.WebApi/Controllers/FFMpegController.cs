@@ -5,7 +5,7 @@ using System.Drawing;
 using SkiaSharp;
 using Microsoft.AspNetCore.Authorization;
 using FFPmpegCore.Global;
-using Microsoft.AspNetCore.Components.Forms;
+using FFMpegCore.WebApi.Utils;
 
 [Authorize]
 [ApiController]
@@ -22,12 +22,6 @@ public class FFMpegController : ControllerBase
     private const string OUTPUT = GlobalConstants.FilePaths.OUTPUT;
     private const string UPLOADS = GlobalConstants.FilePaths.UPLOADS;
 
-    [HttpGet("protected")]
-    public IActionResult ProtectedEndpoint()
-    {
-        return Ok(GlobalConstants.Messages.EndpointProtect);
-    }
-
     public FFMpegController(ILogger<FFMpegController> logger, IWebHostEnvironment environment)
     {
         _logger = logger;
@@ -36,24 +30,50 @@ public class FFMpegController : ControllerBase
         _environment = environment;
     }
 
+    [Authorize]
+    [HttpGet("protected")]
+    public IActionResult ProtectedEndpoint()
+    {
+        return Ok(GlobalConstants.Messages.EndpointProtect);
+    }
+
     [HttpGet("test")]
     public IActionResult Test() => Ok(GlobalConstants.Messages.ApiWorking);
 
+    [Authorize]
     [HttpPost("analyse")]
-    public IActionResult AnalyseVideo([FromBody] VideoProcessingRequest request)
+    public IActionResult AnalyseVideo([FromBody] string request)
     {
-        var inputPath = Path.Combine(UploadsPath, request.InputFileName);
-
-        if (!System.IO.File.Exists(inputPath))
+        if (string.IsNullOrEmpty(request))
         {
-            _logger.LogWarning($"{GlobalConstants.Messages.InputFileNotFound}: {inputPath}");
-            return BadRequest(GlobalConstants.Messages.InputFileNotFound);
+            return BadRequest("The request body must not be empty.");
         }
 
         try
         {
-            var mediaInfo = FFProbe.Analyse(inputPath);
-            _logger.LogInformation($"{GlobalConstants.Messages.SuccessAnalysedVideo}: {inputPath}");
+
+            if (string.IsNullOrWhiteSpace(request))
+            {
+                return BadRequest("The request must contain at least one video file URL and one caption.");
+            }
+
+            if (!request.EndsWith(MP3, StringComparison.OrdinalIgnoreCase) & 
+                !request.EndsWith(MP4, StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest($"No {MP3} or  {MP4} media file found in the request.");
+            }
+
+            // Prepare temp folder for downloaded files
+            var tempPath = Help.PrepareTempFolder();
+
+            // Download video file to temp folder
+            var tempVideoFile = Help.DownloadFile(request, tempPath);
+
+            // Analyze the video file
+            var mediaInfo = FFProbe.Analyse(tempVideoFile);
+
+            // Log and return analysis results
+            _logger.LogInformation($"{GlobalConstants.Messages.SuccessAnalysedVideo}: {tempVideoFile}");
 
             return Ok(new
             {
@@ -64,11 +84,16 @@ public class FFMpegController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Error analyzing video: {inputPath}");
-            return StatusCode(500, "An error occurred while analyzing the video.");
+            _logger.LogError(ex, $"Error analyzing video: {request}");
+            return StatusCode(500, new
+            {
+                Success = false,
+                Error = ex.Message
+            });
         }
     }
 
+    [Authorize]
     [HttpPost("convert")]
     public IActionResult ConvertVideo([FromBody] VideoProcessingRequest request)
     {
@@ -102,6 +127,7 @@ public class FFMpegController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpPost("snapshot")]
     public IActionResult CreateSnapshot([FromBody] VideoProcessingRequest request)
     {
@@ -124,6 +150,7 @@ public class FFMpegController : ControllerBase
         return Ok(new { Message = "Snapshot created successfully.", OutputPath = outputFilePath });
     }
 
+    [Authorize]
     [HttpPost("extract-audio")]
     public IActionResult ExtractAudio([FromBody] VideoProcessingRequest request)
     {
@@ -140,6 +167,7 @@ public class FFMpegController : ControllerBase
         return Ok(new { Message = "Audio extracted successfully.", OutputPath = outputFilePath });
     }
 
+    [Authorize]
     [HttpPost("join-videos")]
     public IActionResult JoinVideos([FromBody] JoinVideosRequest request)
     {
@@ -159,6 +187,7 @@ public class FFMpegController : ControllerBase
         return Ok(new { Message =  GlobalConstants.Messages.VideosJoinedSuccessfully, OutputPath = outputFilePath });
     }
 
+    [Authorize]
     [HttpGet("process-with-progress")]
     public async Task ProcessWithProgress(CancellationToken cancellationToken)
     {
@@ -194,33 +223,6 @@ public class FFMpegController : ControllerBase
         {
             await HttpContext.Response.WriteAsync($"data: {{\"error\": \"{ex.Message}\"}}\n\n");
         }
-    }
-
-    private static async Task ProcessVideoWithProgress(string inputPath, string outputPath, 
-        IProgress<int> progress, CancellationToken cancellationToken)
-    {
-        var totalFrames = 100; // Example: Total frames (or percentage steps)
-        for (var i = 0; i <= totalFrames; i++)
-        {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                throw new TaskCanceledException(GlobalConstants.Messages.ProcessingWasCanceled);
-            }
-
-            // Simulate processing work
-            await Task.Delay(50, cancellationToken); // Simulate frame processing
-
-            // Report progress
-            progress.Report(i);
-        }
-
-        // After processing is complete, perform file operations
-        await FFMpegArguments
-            .FromFileInput(inputPath)
-            .OutputToFile(outputPath, true, options => options
-                .WithVideoCodec("libx264")
-                .WithFastStart())
-            .ProcessAsynchronously();
     }
 
     /// <summary>
@@ -330,11 +332,12 @@ public class FFMpegController : ControllerBase
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
+    [Authorize]
     [HttpPost("merge-audio-video")]
     public IActionResult MergeAudioWithVideo([FromBody] List<string> request)
     {
         // Validate the list
-        var isValid = ValidateRequest(request);
+        var isValid = ValidateRequest(request, 2, ".mp3;.mp4");
 
         if (!isValid)
         {
@@ -406,7 +409,7 @@ public class FFMpegController : ControllerBase
             var outputPath = Path.Combine(outputDirectory, outputFileName);
 
             // Merge the audio and video
-            FFMpeg.ReplaceAudio(tempVideoFiles[0], tempAudioFiles[0], outputPath);
+            FFMpeg.ReplaceAudio(tempVideoFiles[0], tempAudioFiles[0], outputPath, true);
 
             // Generate a downloadable URL for the output file
             var outputUrl = $"{Request.Scheme}://{Request.Host}/{OUTPUT}/{outputFileName}";
@@ -427,6 +430,7 @@ public class FFMpegController : ControllerBase
         }        
     }
 
+    [Authorize]
     [HttpPost("add-audio")]
     public IActionResult AddAudio([FromBody] AddAudioRequest request)
     {
@@ -455,6 +459,8 @@ public class FFMpegController : ControllerBase
             });
         }
     }
+
+    [Authorize]
     [HttpPost("add-subtitles")]
     public IActionResult AddSubtitles([FromBody] AddSubtitleRequest request)
     {
@@ -493,6 +499,108 @@ public class FFMpegController : ControllerBase
         }
     }
 
+    [HttpPost("add-caption")]
+    public IActionResult AddCaption([FromBody] List<string> request)
+    {
+        if (ValidateRequest(request, 2, MP4))
+        {
+            return BadRequest("Both video and caption are required.");
+        }
+
+        try
+        {
+            // Get Video duration
+
+            var mp4File = request
+            .Where(file => file.EndsWith(MP4, StringComparison.OrdinalIgnoreCase))
+            .FirstOrDefault(); // Retrieve the first .mp4 file or null if none exist
+            if (string.IsNullOrEmpty(mp4File))
+            {
+                return BadRequest("Both video and caption are required.");
+            }
+            else
+            {
+                // Get the absolute path for the temporary folder
+                var tempBasePath = Path.GetTempPath(); // System temp directory
+                var tempPath = Path.Combine(tempBasePath, GlobalConstants.AppInfo.Name, GlobalConstants.FilePaths.TEMP);
+
+                // Ensure the directory exists
+                if (!Directory.Exists(tempPath))
+                {
+                    Directory.CreateDirectory(tempPath);
+                }
+
+                var tempVideoFiles = new List<string>();
+
+                foreach (var url in request)
+                {
+                    try
+                    {
+                        // Check if the file exists at the given URL
+                        using (var client = new HttpClient())
+                        {
+                            var response = client.GetAsync(url).Result;
+
+                            if (!response.IsSuccessStatusCode)
+                            {
+                                return BadRequest($"{GlobalConstants.Messages.FileatUrl} '{url}' does not exist or cannot be accessed.");
+                            }
+
+                            // Download the file to the temp folder
+                            var fileName = Path.GetFileName(new Uri(url).LocalPath);
+                            var localFilePath = Path.Combine(tempPath, fileName);
+
+                            using (var fileStream = new FileStream(localFilePath, FileMode.Create))
+                            {
+                                response.Content.CopyToAsync(fileStream).Wait();
+                            }
+
+                             if (localFilePath.EndsWith(MP4))
+                            {
+                                tempVideoFiles.Add(localFilePath);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        return BadRequest($"Error processing file at URL '{url}': {ex.Message}");
+                    }
+                }
+
+                var mediaInfo = FFProbe.Analyse(tempVideoFiles[0]);                 
+                var videoDuration = mediaInfo.Duration;
+
+                var outputPath = Path.Combine(OUTPUT, FileNameGenerator.GenerateOutputFileName(MP4));
+
+                
+                ////// Use FFMpegArguments to add subtitles
+                ////FFMpegArguments
+                ////    .FromFileInput(tempVideoFiles[0])
+                ////    .OutputToFile(outputPath, true, options => options
+                ////        .WithCustomArgument($"-vf subtitles=\"{request.SubtitlePath}\"") // Add subtitles using custom argument
+                ////        .WithVideoCodec("libx264") // Ensure proper video codec
+                ////        .WithConstantRateFactor(23)
+                ////        .WithAudioCodec("aac"))
+                ////    .ProcessSynchronously();
+
+                return Ok(new
+                {
+                    Success = true,
+                    OutputPath = outputPath
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                Success = false,
+                Error = ex.Message
+            });
+        }
+    }
+
+    [Authorize]
     [HttpGet("jobs")]
     public IActionResult GetJobs()
     {
@@ -506,28 +614,78 @@ public class FFMpegController : ControllerBase
         return Ok(jobResults);
     }
 
-    private static bool ValidateRequest(List<string> request)
+    private static async Task ProcessVideoWithProgress(string inputPath, string outputPath,
+        IProgress<int> progress, CancellationToken cancellationToken)
+    {
+        var totalFrames = 100; // Example: Total frames (or percentage steps)
+        for (var i = 0; i <= totalFrames; i++)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                throw new TaskCanceledException(GlobalConstants.Messages.ProcessingWasCanceled);
+            }
+
+            // Simulate processing work
+            await Task.Delay(50, cancellationToken); // Simulate frame processing
+
+            // Report progress
+            progress.Report(i);
+        }
+
+        // After processing is complete, perform file operations
+        await FFMpegArguments
+            .FromFileInput(inputPath)
+            .OutputToFile(outputPath, true, options => options
+                .WithVideoCodec("libx264")
+                .WithFastStart())
+            .ProcessAsynchronously();
+    }
+
+    private static bool ValidateRequest(List<string> request,int requestNum,  string extensions)
     {
         // Check 1: List must contain more than 2 items
-        if (request.Count < 2)
+        if (request.Count < requestNum) 
         {
             return false;
         }
 
         try
         {
-            var validExtensions = new[] { ".mp3", ".mp4" };
+            var validExtensions = extensions.Split(";");
 
+            if (validExtensions.Length == 0)
+            {
+                throw new ArgumentException("No valid extensions provided.");
+            }
+
+            // Check for invalid extensions in the request
+            var invalidFiles = request.Where(file =>
+                !validExtensions.Any(ext => file.EndsWith(ext, StringComparison.OrdinalIgnoreCase))
+            ).ToList();
+
+            if (invalidFiles.Any())
+            {
+                Console.WriteLine("The following files have invalid extensions:");
+                foreach (var invalidFile in invalidFiles)
+                {
+                    Console.WriteLine(invalidFile);
+                }
+
+                return false; // Or handle invalid files as needed
+            }
+
+            // Find matching files with valid extensions
             var matchingFiles = request.Where(file =>
                 validExtensions.Any(ext => file.EndsWith(ext, StringComparison.OrdinalIgnoreCase))
             ).ToList();
 
             return matchingFiles.Count >= 2;
+
         }
         catch (Exception  )
         {
             
             return false;
         }
-    }
+    }   
 }
