@@ -179,7 +179,7 @@ export async function analyseMedia(event) {
         }
 
         const result = await response.json();
-        purgeResult(result,"outputMessage3");
+        purgeAnalyseMediaResult(result,"outputMessage3");
 
     } catch (error) {
         console.error("Error:", error);
@@ -188,7 +188,7 @@ export async function analyseMedia(event) {
 }
 
 // Example function to process and display the result
-function purgeResult(result, targetId) {
+function purgeAnalyseMediaResult(result, targetId) {
     // Check if the result object has the expected properties
     if (!result || typeof result !== 'object') {
         console.error("Invalid result object");
