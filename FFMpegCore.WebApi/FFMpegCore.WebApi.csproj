@@ -29,6 +29,7 @@
   <ItemGroup>
     <ProjectReference Include="..\FFMpegCore.Extensions.SkiaSharp\FFMpegCore.Extensions.SkiaSharp.csproj" />
     <ProjectReference Include="..\FFMpegCore\FFMpegCore.csproj" />
+    <ProjectReference Include="..\FFPmpegCore.Global\FFPmpegCore.Global.csproj" />
   </ItemGroup>
 
   <ItemGroup>

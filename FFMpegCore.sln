@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35521.163 d17.12
+VisualStudioVersion = 17.12.35521.163
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFMpegCore", "FFMpegCore\FFMpegCore.csproj", "{19DE2EC2-9955-4712-8096-C22EF6713E4F}"
 EndProject
@@ -14,6 +14,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFMpegCore.Extensions.SkiaSharp", "FFMpegCore.Extensions.SkiaSharp\FFMpegCore.Extensions.SkiaSharp.csproj", "{5A76F9B7-3681-4551-A9B6-8D3AC5DA1090}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFMpegCore.WebApi", "FFMpegCore.WebApi\FFMpegCore.WebApi.csproj", "{52BE6D07-3A3D-49F1-8062-F8F8AB8D8E6A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFPmpegCore.Global", "FFPmpegCore.Global\FFPmpegCore.Global.csproj", "{C58CE04F-5074-424A-9C29-070E6A05BDBF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{52BE6D07-3A3D-49F1-8062-F8F8AB8D8E6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{52BE6D07-3A3D-49F1-8062-F8F8AB8D8E6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{52BE6D07-3A3D-49F1-8062-F8F8AB8D8E6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C58CE04F-5074-424A-9C29-070E6A05BDBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C58CE04F-5074-424A-9C29-070E6A05BDBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C58CE04F-5074-424A-9C29-070E6A05BDBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C58CE04F-5074-424A-9C29-070E6A05BDBF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

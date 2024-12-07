@@ -4,6 +4,8 @@ using FFMpegCore.Enums;
 using System.Drawing;
 using SkiaSharp;
 using Microsoft.AspNetCore.Authorization;
+using FFPmpegCore.Global;
+using Microsoft.AspNetCore.Components.Forms;
 
 [Authorize]
 [ApiController]
@@ -12,16 +14,18 @@ public class FFMpegController : ControllerBase
 {
     private readonly ILogger<FFMpegController> _logger;
     private readonly IWebHostEnvironment _environment;
-    private readonly string UploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
-    private readonly string OutputPath = Path.Combine(Directory.GetCurrentDirectory(), "output");
-    private const string MP4 = ".mp4";
-    private const string MP3 = ".mp3";
-    private const string JPG = ".jpg";
+    private readonly string UploadsPath = Path.Combine(Directory.GetCurrentDirectory(), UPLOADS);
+    private readonly string OutputPath = Path.Combine(Directory.GetCurrentDirectory(), OUTPUT);
+    private const string MP4 = GlobalConstants.FilePaths.MP4;
+    private const string MP3 = GlobalConstants.FilePaths.MP3;
+    private const string JPG = GlobalConstants.FilePaths.JPG;
+    private const string OUTPUT = GlobalConstants.FilePaths.OUTPUT;
+    private const string UPLOADS = GlobalConstants.FilePaths.UPLOADS;
 
     [HttpGet("protected")]
     public IActionResult ProtectedEndpoint()
     {
-        return Ok("This is a protected endpoint!");
+        return Ok(GlobalConstants.Messages.EndpointProtect);
     }
 
     public FFMpegController(ILogger<FFMpegController> logger, IWebHostEnvironment environment)
@@ -33,7 +37,7 @@ public class FFMpegController : ControllerBase
     }
 
     [HttpGet("test")]
-    public IActionResult Test() => Ok("API is working");
+    public IActionResult Test() => Ok(GlobalConstants.Messages.ApiWorking);
 
     [HttpPost("analyse")]
     public IActionResult AnalyseVideo([FromBody] VideoProcessingRequest request)
@@ -42,14 +46,14 @@ public class FFMpegController : ControllerBase
 
         if (!System.IO.File.Exists(inputPath))
         {
-            _logger.LogWarning($"Input file not found: {inputPath}");
-            return BadRequest("Input file not found.");
+            _logger.LogWarning($"{GlobalConstants.Messages.InputFileNotFound}: {inputPath}");
+            return BadRequest(GlobalConstants.Messages.InputFileNotFound);
         }
 
         try
         {
             var mediaInfo = FFProbe.Analyse(inputPath);
-            _logger.LogInformation($"Successfully analysed video: {inputPath}");
+            _logger.LogInformation($"{GlobalConstants.Messages.SuccessAnalysedVideo}: {inputPath}");
 
             return Ok(new
             {
@@ -73,8 +77,8 @@ public class FFMpegController : ControllerBase
 
         if (!System.IO.File.Exists(inputPath))
         {
-            _logger.LogWarning($"Input file not found: {inputPath}");
-            return BadRequest("Input file not found.");
+            _logger.LogWarning($"{GlobalConstants.Messages.InputFileNotFound}: {inputPath}");
+            return BadRequest(GlobalConstants.Messages.InputFileNotFound);
         }
 
         try
@@ -106,7 +110,7 @@ public class FFMpegController : ControllerBase
 
         if (!System.IO.File.Exists(inputPath))
         {
-            return BadRequest("Input file not found.");
+            return BadRequest(GlobalConstants.Messages.InputFileNotFound);
         }
 
         // Use SkiaSharp to save the snapshot
@@ -145,14 +149,14 @@ public class FFMpegController : ControllerBase
         {
             if (!System.IO.File.Exists(Path.Combine(UploadsPath, file)))
             {
-                return BadRequest($"File not found: {file}");
+                return BadRequest($"{GlobalConstants.Messages.FileNotFound}: {file}");
             }
         }
 
         var inputFiles = request.InputFileNames.Select(file => Path.Combine(UploadsPath, file)).ToArray();
         FFMpeg.Join(outputFilePath, inputFiles);
 
-        return Ok(new { Message = "Videos joined successfully.", OutputPath = outputFilePath });
+        return Ok(new { Message =  GlobalConstants.Messages.VideosJoinedSuccessfully, OutputPath = outputFilePath });
     }
 
     [HttpGet("process-with-progress")]
@@ -172,7 +176,7 @@ public class FFMpegController : ControllerBase
 
         try
         {
-            var inputPath = Path.Combine(UploadsPath, "input.mp4");
+            var inputPath = Path.Combine(UploadsPath, $"input{MP4}");
             var outputPath = Path.Combine(OutputPath, FileNameGenerator.GenerateOutputFileName(MP4));
 
             if (!System.IO.File.Exists(inputPath))
@@ -200,7 +204,7 @@ public class FFMpegController : ControllerBase
         {
             if (cancellationToken.IsCancellationRequested)
             {
-                throw new TaskCanceledException("Processing was canceled.");
+                throw new TaskCanceledException(GlobalConstants.Messages.ProcessingWasCanceled);
             }
 
             // Simulate processing work
@@ -219,6 +223,12 @@ public class FFMpegController : ControllerBase
             .ProcessAsynchronously();
     }
 
+    /// <summary>
+    /// MergeVideos
+    /// </summary>
+    /// Manual Test - Passed
+    /// <param name="request"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpPost("merge-videos")]
     public IActionResult MergeVideos([FromBody] List<string> request)
@@ -232,7 +242,7 @@ public class FFMpegController : ControllerBase
         {
             // Get the absolute path for the temporary folder
             var tempBasePath = Path.GetTempPath(); // System temp directory
-            var tempPath = Path.Combine(tempBasePath, "YourAppName", "temp");
+            var tempPath = Path.Combine(tempBasePath, GlobalConstants.AppInfo.Name, GlobalConstants.FilePaths.TEMP);
 
             // Ensure the directory exists
             if (!Directory.Exists(tempPath))
@@ -253,7 +263,7 @@ public class FFMpegController : ControllerBase
 
                         if (!response.IsSuccessStatusCode)
                         {
-                            return BadRequest($"File at URL '{url}' does not exist or cannot be accessed.");
+                            return BadRequest($"{GlobalConstants.Messages.FileatUrl} '{url}' does not exist or cannot be accessed.");
                         }
 
                         // Download the file to the temp folder
@@ -275,13 +285,13 @@ public class FFMpegController : ControllerBase
             }
 
             // Output path for the merged video
-            var outputDirectory = Path.Combine("wwwroot", "output");
+            var outputDirectory = Path.Combine(GlobalConstants.FilePaths.WWWROOT, GlobalConstants.FilePaths.OUTPUT);
             if (!Directory.Exists(outputDirectory))
             {
                 Directory.CreateDirectory(outputDirectory);
             }
 
-            var outputFileName = FileNameGenerator.GenerateOutputFileName("mp4");
+            var outputFileName = FileNameGenerator.GenerateOutputFileName(MP4);
             var outputPath = Path.Combine(outputDirectory, outputFileName);
 
             // Use FFMpeg to merge the downloaded files
@@ -297,7 +307,7 @@ public class FFMpegController : ControllerBase
             }
 
             // Generate a downloadable URL for the output file
-            var outputUrl = $"{Request.Scheme}://{Request.Host}/output/{outputFileName}";
+            var outputUrl = $"{Request.Scheme}://{Request.Host}/{OUTPUT}/{outputFileName}";
 
             return Ok(new
             {
@@ -315,60 +325,106 @@ public class FFMpegController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// MergeAudioWithVideo
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [HttpPost("merge-audio-video")]
-    public IActionResult MergeAudioWithVideo([FromBody] MergeAudioVideoRequest request)
+    public IActionResult MergeAudioWithVideo([FromBody] List<string> request)
     {
-        if (string.IsNullOrWhiteSpace(request.VideoFileBase64) ||
-            string.IsNullOrWhiteSpace(request.AudioFileBase64))
+        // Validate the list
+        var isValid = ValidateRequest(request);
+
+        if (!isValid)
         {
-            return BadRequest("All fields (videoFileBase64, audioFileBase64, outputFileName) are required.");
+            return BadRequest("Both video and audio paths are required.");
         }
-
-        var uploadsPath = Path.Combine(_environment.WebRootPath, "uploads");
-        var outputPath = Path.Combine(_environment.WebRootPath, "output");
-
-        // Ensure directories exist
-        Directory.CreateDirectory(uploadsPath);
-        Directory.CreateDirectory(outputPath);
-
-        var videoFilePath = Path.Combine(uploadsPath, "uploaded_video.mp4");
-        var audioFilePath = Path.Combine(uploadsPath, "uploaded_audio.mp3");
-        var outputFilePath = Path.Combine(outputPath, FileNameGenerator.GenerateOutputFileName(MP4));
 
         try
         {
-            // Decode and save the video file
-            var videoBytes = Convert.FromBase64String(request.VideoFileBase64);
-            System.IO.File.WriteAllBytes(videoFilePath, videoBytes);
+            // Get the absolute path for the temporary folder
+            var tempBasePath = Path.GetTempPath(); // System temp directory
+            var tempPath = Path.Combine(tempBasePath, GlobalConstants.AppInfo.Name, GlobalConstants.FilePaths.TEMP);
 
-            // Decode and save the audio file
-            var audioBytes = Convert.FromBase64String(request.AudioFileBase64);
-            System.IO.File.WriteAllBytes(audioFilePath, audioBytes);
+            // Ensure the directory exists
+            if (!Directory.Exists(tempPath))
+            {
+                Directory.CreateDirectory(tempPath);
+            }
+
+            var tempVideoFiles = new List<string>();
+            var tempAudioFiles = new List<string>();
+
+            foreach (var url in request)
+            {
+                try
+                {
+                    // Check if the file exists at the given URL
+                    using (var client = new HttpClient())
+                    {
+                        var response = client.GetAsync(url).Result;
+
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            return BadRequest($"{GlobalConstants.Messages.FileatUrl} '{url}' does not exist or cannot be accessed.");
+                        }
+
+                        // Download the file to the temp folder
+                        var fileName = Path.GetFileName(new Uri(url).LocalPath);
+                        var localFilePath = Path.Combine(tempPath, fileName);
+
+                        using (var fileStream = new FileStream(localFilePath, FileMode.Create))
+                        {
+                            response.Content.CopyToAsync(fileStream).Wait();
+                        }
+
+                        if (localFilePath.EndsWith(MP3))
+                        {
+                            tempAudioFiles.Add(localFilePath);
+                        }
+                        else if (localFilePath.EndsWith(MP4))
+                        {
+                            tempVideoFiles.Add(localFilePath);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest($"Error processing file at URL '{url}': {ex.Message}");
+                }
+            }
+
+            // Output path for the merged video
+            var outputDirectory = Path.Combine(GlobalConstants.FilePaths.WWWROOT, GlobalConstants.FilePaths.OUTPUT);
+            if (!Directory.Exists(outputDirectory))
+            {
+                Directory.CreateDirectory(outputDirectory);
+            }
+
+            var outputFileName = FileNameGenerator.GenerateOutputFileName(MP4);
+            var outputPath = Path.Combine(outputDirectory, outputFileName);
 
             // Merge the audio and video
-            FFMpeg.ReplaceAudio(videoFilePath, audioFilePath, outputFilePath);
+            FFMpeg.ReplaceAudio(tempVideoFiles[0], tempAudioFiles[0], outputPath);
 
-            // Return the output file path
-            var resultUrl = Url.Content($"~/output/{outputFilePath}");
-            return Ok(new { Message = "Merge successful", OutputUrl = resultUrl });
+            // Generate a downloadable URL for the output file
+            var outputUrl = $"{Request.Scheme}://{Request.Host}/{OUTPUT}/{outputFileName}";
+
+            return Ok(new
+            {
+                Success = true,
+                OutputPath = outputUrl
+            });
         }
         catch (Exception ex)
         {
-            return StatusCode(500, $"An error occurred: {ex.Message}");
-        }
-        finally
-        {
-            // Clean up temporary files
-            if (System.IO.File.Exists(videoFilePath))
+            return StatusCode(500, new
             {
-                System.IO.File.Delete(videoFilePath);
-            }
-
-            if (System.IO.File.Exists(audioFilePath))
-            {
-                System.IO.File.Delete(audioFilePath);
-            }
-        }
+                Success = false,
+                Error = ex.Message
+            });
+        }        
     }
 
     [HttpPost("add-audio")]
@@ -381,7 +437,7 @@ public class FFMpegController : ControllerBase
 
         try
         {
-            var outputPath = Path.Combine("output", FileNameGenerator.GenerateOutputFileName(MP4));
+            var outputPath = Path.Combine(OUTPUT, FileNameGenerator.GenerateOutputFileName(MP4));
             FFMpeg.ReplaceAudio(request.VideoPath, request.AudioPath, outputPath);
 
             return Ok(new
@@ -409,7 +465,7 @@ public class FFMpegController : ControllerBase
 
         try
         {
-            var outputPath = Path.Combine("output", FileNameGenerator.GenerateOutputFileName(MP4));
+            var outputPath = Path.Combine(OUTPUT, FileNameGenerator.GenerateOutputFileName(MP4));
 
             // Use FFMpegArguments to add subtitles
             FFMpegArguments
@@ -448,5 +504,30 @@ public class FFMpegController : ControllerBase
     };
 
         return Ok(jobResults);
+    }
+
+    private static bool ValidateRequest(List<string> request)
+    {
+        // Check 1: List must contain more than 2 items
+        if (request.Count < 2)
+        {
+            return false;
+        }
+
+        try
+        {
+            var validExtensions = new[] { ".mp3", ".mp4" };
+
+            var matchingFiles = request.Where(file =>
+                validExtensions.Any(ext => file.EndsWith(ext, StringComparison.OrdinalIgnoreCase))
+            ).ToList();
+
+            return matchingFiles.Count >= 2;
+        }
+        catch (Exception  )
+        {
+            
+            return false;
+        }
     }
 }

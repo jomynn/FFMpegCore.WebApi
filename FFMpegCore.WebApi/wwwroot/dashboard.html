@@ -29,20 +29,21 @@
                     <textarea id="selectedFiles" name="selectedFiles" placeholder="Selected files will appear here..." readonly></textarea>
                     <button type="submit">Merge Videos</button>
                 </form>
-                <p id="outputMessage"></p> <!-- Placeholder for success or error messages -->
+                <p id="outputMessage1"></p> <!-- Placeholder for success or error messages -->
             </section>
 
             <!-- Merge Audio + Video -->
             <section id="mergeAudioVideo">
                 <h2>Merge Audio with Video</h2>
                 <form id="mergeAudioVideoForm">
-                    <label for="audioFile">Audio File:</label>
-                    <input type="file" id="audioFile" name="audioFile" accept="audio/*">
-
-                    <label for="videoFileForAudio">Video File:</label>
-                    <input type="file" id="videoFileForAudio" name="videoFileForAudio" accept="video/*">
+                    <label for="fileList2">Select Video Files:</label>
+                    <div id="fileCheckboxContainer2">
+                        <!-- Checkboxes will be dynamically populated -->
+                    </div>
+                    <textarea id="selectedFiles2" name="selectedFiles" placeholder="Selected files will appear here..." readonly></textarea>
                     <button type="submit">Merge Audio + Video</button>
                 </form>
+                <p id="outputMessage2"></p> <!-- Placeholder for success or error messages -->
             </section>
 
             <!-- Progress and Output -->
