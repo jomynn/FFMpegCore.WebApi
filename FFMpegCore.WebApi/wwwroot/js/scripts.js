@@ -219,15 +219,74 @@ function purgeAnalyseMediaResult(result, targetId) {
     console.log("Detailed Result:", result);
 }
 
-// Example usage
-const result = {
-    duration: '00:02:29.7600000',
-    videoStreams: [],
-    audioStreams: [{}]
-};
+// Merge Audio + Video
+export async function addVideoCaption(event) {
+    event.preventDefault();
+
+    try {
+        // Get all checked checkboxes
+        const selectedFiles = Array.from(
+            document.querySelectorAll(".file-checkbox4:checked")
+        ).map(checkbox => checkbox.value);
+
+        // Validate that at least one file is selected
+        if (selectedFiles.length < 1) {
+            throw new Error("Please select at least a video file.");
+        }
+
+        // Convert the selected files to a JSON string
+        const request = JSON.stringify(selectedFiles);
+
+        // Parse the JSON array
+        const requestArray = JSON.parse(request);
+
+        if (!Array.isArray(requestArray)) {
+            throw new Error("Request is not a valid array.");
+        }
+
+        // Get the caption text
+        const caption = document.getElementById("captionText").value;
+        if (!caption) {
+            throw new Error("Caption text is required.");
+        }
+
+        // Prepare the payload
+        const payload = {
+            request: requestArray[0], // Use the first file as a string
+            caption: caption          // Add the caption as a string
+        };
+
+        // Retrieve the JWT token from localStorage
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+            throw new Error("Authentication token is missing. Please log in again.");
+        }
+
+        // Send the payload via fetch
+        const response = await fetch(`${apiBaseUrl}/ffmpeg/add-caption`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(payload) // Send the payload as JSON
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Failed to Add Video Caption: ${errorText}`);
+        }
+
+        const result = await response.json();
+        document.getElementById("outputMessage4").innerText = `Response: ${JSON.stringify(result, null, 2)}`;
+    } catch (error) {
+        console.error("Error adding video caption:", error);
+        document.getElementById("outputMessage4").innerText = `Error: ${error.message}`;
+    }
 
 
 
+}
 
 // Fetch the list of files from the server and populate checkboxes
 // Consolidated Fetch File List Function
@@ -276,53 +335,45 @@ function toBase64(file) {
     });
 }
 
-// Update the textarea with selected files
-function updateSelectedFiles() {
+// Generic function to update selected files
+function updateSelectedFiles(containerClass, outputTextareaId) {
     const selectedFiles = Array.from(
-        document.querySelectorAll(".file-checkbox:checked")
+        document.querySelectorAll(`.${containerClass}:checked`)
     ).map(checkbox => checkbox.value);
 
-    document.getElementById("selectedFiles").value = selectedFiles.join("\n");
-}
-function updateSelectedFiles2() {
-    const selectedFiles = Array.from(
-        document.querySelectorAll(".file-checkbox2:checked")
-    ).map(checkbox => checkbox.value);
-
-    document.getElementById("selectedFiles2").value = selectedFiles.join("\n");
-}
-function updateSelectedFiles3() {
-    const selectedFiles = Array.from(
-        document.querySelectorAll(".file-checkbox3:checked")
-    ).map(checkbox => checkbox.value);
-
-    document.getElementById("selectedFiles3").value = selectedFiles.join("\n");
+    const outputTextarea = document.getElementById(outputTextareaId);
+    if (outputTextarea) {
+        outputTextarea.value = selectedFiles.join("\n");
+    }
 }
 
 // Attach Event Listeners with Error Handling
 document.addEventListener("DOMContentLoaded", () => {
-    const fileContainer1 = document.getElementById("fileCheckboxContainer");
-    if (fileContainer1) {
-        fileContainer1.addEventListener("change", updateSelectedFiles);
-    }
+    // Define mappings between container IDs and their corresponding classes/output textareas
+    const containers = [
+        { containerId: "fileCheckboxContainer", className: "file-checkbox", outputTextareaId: "selectedFiles" },
+        { containerId: "fileCheckboxContainer2", className: "file-checkbox2", outputTextareaId: "selectedFiles2" },
+        { containerId: "fileCheckboxContainer3", className: "file-checkbox3", outputTextareaId: "selectedFiles3" },
+        { containerId: "fileCheckboxContainer4", className: "file-checkbox4", outputTextareaId: "selectedFiles4" },
+    ];
 
-    const fileContainer2 = document.getElementById("fileCheckboxContainer2");
-    if (fileContainer2) {
-        fileContainer2.addEventListener("change", updateSelectedFiles2);
-    }
-
-    const fileContainer3 = document.getElementById("fileCheckboxContainer3");
-    if (fileContainer3) {
-        fileContainer3.addEventListener("change", updateSelectedFiles3);
-    }
+    // Attach event listeners dynamically
+    containers.forEach(({ containerId, className, outputTextareaId }) => {
+        const container = document.getElementById(containerId);
+        if (container) {
+            container.addEventListener("change", () => updateSelectedFiles(className, outputTextareaId));
+        }
+    });
 
     // Attach form submissions
     document.getElementById("mergeVideosForm")?.addEventListener("submit", mergeVideos);
     document.getElementById("mergeAudioVideoForm")?.addEventListener("submit", mergeAudioVideo);
     document.getElementById("analyseMediaForm")?.addEventListener("submit", analyseMedia);
+    document.getElementById("addVideoCaptionForm")?.addEventListener("submit", addVideoCaption);
 
     // Fetch file lists
     fetchFileList("fileCheckboxContainer", "file-checkbox");
     fetchFileList("fileCheckboxContainer2", "file-checkbox2");
     fetchFileList("fileCheckboxContainer3", "file-checkbox3");
+    fetchFileList("fileCheckboxContainer4", "file-checkbox4");
 });

@@ -32,6 +32,7 @@
             public const string MP4 = ".mp4";
             public const string MP3 = ".mp3";
             public const string JPG = ".jpg";
+            public const string SRT = ".srt";
             public const string OUTPUT = "output";
             public const string UPLOADS = "uploads";
             public const string TEMP = "temp";

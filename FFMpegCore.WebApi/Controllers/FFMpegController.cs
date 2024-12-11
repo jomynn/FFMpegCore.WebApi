@@ -6,6 +6,7 @@ using SkiaSharp;
 using Microsoft.AspNetCore.Authorization;
 using FFPmpegCore.Global;
 using FFMpegCore.WebApi.Utils;
+using FFMpegCore.Arguments;
 
 [Authorize]
 [ApiController]
@@ -19,6 +20,7 @@ public class FFMpegController : ControllerBase
     private const string MP4 = GlobalConstants.FilePaths.MP4;
     private const string MP3 = GlobalConstants.FilePaths.MP3;
     private const string JPG = GlobalConstants.FilePaths.JPG;
+    public const string SRT = GlobalConstants.FilePaths.SRT;
     private const string OUTPUT = GlobalConstants.FilePaths.OUTPUT;
     private const string UPLOADS = GlobalConstants.FilePaths.UPLOADS;
 
@@ -242,9 +244,7 @@ public class FFMpegController : ControllerBase
 
         try
         {
-            // Get the absolute path for the temporary folder
-            var tempBasePath = Path.GetTempPath(); // System temp directory
-            var tempPath = Path.Combine(tempBasePath, GlobalConstants.AppInfo.Name, GlobalConstants.FilePaths.TEMP);
+            var tempPath = GetLocalTempPath();
 
             // Ensure the directory exists
             if (!Directory.Exists(tempPath))
@@ -325,6 +325,18 @@ public class FFMpegController : ControllerBase
                 Error = ex.Message
             });
         }
+    }
+
+    /// <summary>
+    /// GetLocalTempPath
+    /// </summary>
+    /// <returns></returns>
+    private static string GetLocalTempPath()
+    {
+        // Get the absolute path for the temporary folder
+        var tempBasePath = Help.PrepareTempFolder(); // System temp directory
+        var tempPath = Path.Combine(tempBasePath, GlobalConstants.AppInfo.Name, GlobalConstants.FilePaths.TEMP);
+        return tempPath;
     }
 
     /// <summary>
@@ -460,6 +472,11 @@ public class FFMpegController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [Authorize]
     [HttpPost("add-subtitles")]
     public IActionResult AddSubtitles([FromBody] AddSubtitleRequest request)
@@ -473,6 +490,7 @@ public class FFMpegController : ControllerBase
         {
             var outputPath = Path.Combine(OUTPUT, FileNameGenerator.GenerateOutputFileName(MP4));
 
+            
             // Use FFMpegArguments to add subtitles
             FFMpegArguments
                 .FromFileInput(request.VideoPath)
@@ -500,95 +518,152 @@ public class FFMpegController : ControllerBase
     }
 
     [HttpPost("add-caption")]
-    public IActionResult AddCaption([FromBody] List<string> request)
+    public IActionResult AddCaption([FromBody] AddCaptionRequest payload)
     {
-        if (ValidateRequest(request, 2, MP4))
+        if (payload == null || string.IsNullOrEmpty(payload.Request) || string.IsNullOrEmpty(payload.Caption))
         {
-            return BadRequest("Both video and caption are required.");
+            return BadRequest("Request and Caption are required.");
         }
 
         try
         {
+            // Process the request and caption
+            // Example: Log the values or perform some logic
+            Console.WriteLine($"Request: {payload.Request}");
+            Console.WriteLine($"Caption: {payload.Caption}");
+
             // Get Video duration
 
-            var mp4File = request
-            .Where(file => file.EndsWith(MP4, StringComparison.OrdinalIgnoreCase))
-            .FirstOrDefault(); // Retrieve the first .mp4 file or null if none exist
-            if (string.IsNullOrEmpty(mp4File))
+            var mp4File = payload.Request.EndsWith(MP4, StringComparison.OrdinalIgnoreCase) ? payload.Request : "";
+
+            // Get the absolute path for the temporary folder
+            var tempBasePath = Path.GetTempPath(); // System temp directory
+            var tempPath = Path.Combine(tempBasePath, GlobalConstants.AppInfo.Name, GlobalConstants.FilePaths.TEMP);
+
+            // Ensure the directory exists
+            if (!Directory.Exists(tempPath))
             {
-                return BadRequest("Both video and caption are required.");
+                Directory.CreateDirectory(tempPath);
             }
-            else
+
+            var tempVideoFiles = new List<string>();
+
+            try
             {
-                // Get the absolute path for the temporary folder
-                var tempBasePath = Path.GetTempPath(); // System temp directory
-                var tempPath = Path.Combine(tempBasePath, GlobalConstants.AppInfo.Name, GlobalConstants.FilePaths.TEMP);
-
-                // Ensure the directory exists
-                if (!Directory.Exists(tempPath))
+                // Check if the file exists at the given URL
+                using (var client = new HttpClient())
                 {
-                    Directory.CreateDirectory(tempPath);
-                }
+                    var response = client.GetAsync(mp4File).Result;
 
-                var tempVideoFiles = new List<string>();
-
-                foreach (var url in request)
-                {
-                    try
+                    if (!response.IsSuccessStatusCode)
                     {
-                        // Check if the file exists at the given URL
-                        using (var client = new HttpClient())
-                        {
-                            var response = client.GetAsync(url).Result;
-
-                            if (!response.IsSuccessStatusCode)
-                            {
-                                return BadRequest($"{GlobalConstants.Messages.FileatUrl} '{url}' does not exist or cannot be accessed.");
-                            }
-
-                            // Download the file to the temp folder
-                            var fileName = Path.GetFileName(new Uri(url).LocalPath);
-                            var localFilePath = Path.Combine(tempPath, fileName);
-
-                            using (var fileStream = new FileStream(localFilePath, FileMode.Create))
-                            {
-                                response.Content.CopyToAsync(fileStream).Wait();
-                            }
-
-                             if (localFilePath.EndsWith(MP4))
-                            {
-                                tempVideoFiles.Add(localFilePath);
-                            }
-                        }
+                        return BadRequest($"{GlobalConstants.Messages.FileatUrl} '{mp4File}' does not exist or cannot be accessed.");
                     }
-                    catch (Exception ex)
+
+                    // Download the file to the temp folder
+                    var fileName = Path.GetFileName(new Uri(mp4File).LocalPath);
+                    var localFilePath = Path.Combine(tempPath, fileName);
+
+                    using (var fileStream = new FileStream(localFilePath, FileMode.Create))
                     {
-                        return BadRequest($"Error processing file at URL '{url}': {ex.Message}");
+                        response.Content.CopyToAsync(fileStream).Wait();
+                    }
+
+                    if (localFilePath.EndsWith(MP4))
+                    {
+                        tempVideoFiles.Add(localFilePath);
                     }
                 }
-
-                var mediaInfo = FFProbe.Analyse(tempVideoFiles[0]);                 
-                var videoDuration = mediaInfo.Duration;
-
-                var outputPath = Path.Combine(OUTPUT, FileNameGenerator.GenerateOutputFileName(MP4));
-
-                
-                ////// Use FFMpegArguments to add subtitles
-                ////FFMpegArguments
-                ////    .FromFileInput(tempVideoFiles[0])
-                ////    .OutputToFile(outputPath, true, options => options
-                ////        .WithCustomArgument($"-vf subtitles=\"{request.SubtitlePath}\"") // Add subtitles using custom argument
-                ////        .WithVideoCodec("libx264") // Ensure proper video codec
-                ////        .WithConstantRateFactor(23)
-                ////        .WithAudioCodec("aac"))
-                ////    .ProcessSynchronously();
-
-                return Ok(new
-                {
-                    Success = true,
-                    OutputPath = outputPath
-                });
             }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error processing file at URL '{mp4File}': {ex.Message}");
+            }
+
+            // Output path for the merged video
+
+            var outputPath = Help.GetAbsoluteLocalTempFilename(GlobalConstants.FilePaths.OUTPUT,MP4);
+
+            // Path to the output subtitle file
+            var subtitleFilePath = Help.GetAbsoluteLocalTempFilename(GlobalConstants.FilePaths.TEMP, SRT);
+    var mediaInfo = FFProbe.Analyse(tempVideoFiles[0]);
+            var videoDuration = mediaInfo.Duration;
+            // Subtitle content
+            var subtitleContent = $"1\n00:00:00,000 --> {mediaInfo.Duration}\nCaption {payload.Caption}";
+
+
+            // Write subtitles to file
+            System.IO.File.WriteAllText(subtitleFilePath, subtitleContent);
+
+            // Confirm successful write
+            Console.WriteLine($"Subtitle file created: {subtitleFilePath}");
+
+        
+
+            if (!System.IO.File.Exists(tempVideoFiles[0]))
+            {
+                throw new FileNotFoundException($"Video file not found: {tempVideoFiles[0]}");
+            }
+
+            if (!System.IO.File.Exists(subtitleFilePath))
+            {
+                throw new FileNotFoundException($"Subtitle file not found: {subtitleFilePath}");
+            }
+
+            // Replace backslashes with forward slashes for FFmpeg compatibility
+            //subtitleFilePath = subtitleFilePath.Replace("\\", "/");
+
+            /*** Assert.AreEqual("-i \"input.mp4\" -vf \"subtitles='sample.srt':charenc=UTF-8:original_size=1366x768:stream_index=0:force_style='FontName=DejaVu Serif\\,PrimaryColour=&HAA00FF00'\" \"output.mp4\""
+             * ,str);
+            ***/
+
+            var subtitleArg = $"-vf subtitles='{subtitleFilePath}'";
+
+            /******
+            *        public void Builder_BuildString_SubtitleHardBurnFilter()
+            *        {
+            *        var str = FFMpegArguments
+            *            .FromFileInput("input.mp4")
+            *            .OutputToFile("output.mp4", false, opt => opt
+            *                .WithVideoFilters(filterOptions => filterOptions
+            *                    .HardBurnSubtitle(SubtitleHardBurnOptions
+            *                        .Create(subtitlePath: "sample.srt")
+            *                        .SetCharacterEncoding("UTF-8")
+            *                       .SetOriginalSize(1366, 768)
+            *                        .SetSubtitleIndex(0)
+            *                        .WithStyle(StyleOptions.Create()
+            *                            .WithParameter("FontName", "DejaVu Serif")
+            *                            .WithParameter("PrimaryColour", "&HAA00FF00")))))
+            *            .Arguments;
+            *
+            *            Assert.AreEqual("-i \"input.mp4\" -vf \"subtitles='sample.srt':charenc=UTF-8:original_size=1366x768:stream_index=0:force_style='FontName=DejaVu Serif\\,PrimaryColour=&HAA00FF00'\" \"output.mp4\"",
+            *            str);
+            *        }
+            ****/
+            // Process video with subtitles
+            FFMpegArguments
+                      .FromFileInput(tempVideoFiles[0])
+                      .OutputToFile(outputPath, false, opt => opt
+                          .WithVideoFilters(filterOptions => filterOptions
+                              .HardBurnSubtitle(SubtitleHardBurnOptions
+                                  .Create(subtitlePath: subtitleFilePath)
+                                  .SetCharacterEncoding("UTF-8")
+                                  .SetSubtitleIndex(0)
+                                  .WithStyle(StyleOptions.Create()
+                                      .WithParameter("FontName", "DejaVu Serif")
+                                      .WithParameter("PrimaryColour", "&HAA00FF00")
+                                      )))
+                          )
+                      .ProcessSynchronously();
+                       
+
+            // Simulate a successful response
+            return Ok(new
+            {
+                Success = true,
+                OutputPath = outputPath
+            });
+
         }
         catch (Exception ex)
         {
@@ -599,6 +674,10 @@ public class FFMpegController : ControllerBase
             });
         }
     }
+
+   
+
+   
 
     [Authorize]
     [HttpGet("jobs")]
