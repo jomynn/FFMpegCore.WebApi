@@ -641,6 +641,7 @@ public class FFMpegController : ControllerBase
             *        }
             ****/
             // Process video with subtitles
+          /*
             FFMpegArguments
                       .FromFileInput(tempVideoFiles[0])
                       .OutputToFile(outputPath, false, opt => opt
@@ -655,7 +656,21 @@ public class FFMpegController : ControllerBase
                                       )))
                           )
                       .ProcessSynchronously();
-                       
+          */
+            FFMpegArguments
+                .FromFileInput(tempVideoFiles[0])
+                .OutputToFile(outputPath, false, opt => opt
+                    .WithVideoFilters(filterOptions => filterOptions
+                        .DrawText(DrawTextOptions
+                            .Create(payload.Caption, "DejaVu Serif")
+                            .WithParameter("fontcolor", "white")
+                            .WithParameter("fontsize", "24")
+                            .WithParameter("box", "1")
+                            .WithParameter("boxcolor", "black@0.5")
+                            .WithParameter("boxborderw", "5")
+                            .WithParameter("x", "(w-text_w)/2")
+                            .WithParameter("y", "(h-text_h)/2"))))
+                .ProcessSynchronously();
 
             // Simulate a successful response
             return Ok(new
