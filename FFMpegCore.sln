@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFMpegCore.WebApi", "FFMpeg
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFPmpegCore.Global", "FFPmpegCore.Global\FFPmpegCore.Global.csproj", "{C58CE04F-5074-424A-9C29-070E6A05BDBF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFMpegCore.WebApiTests", "FFMpegCore.WebApiTests\FFMpegCore.WebApiTests.csproj", "{171CB618-8DCE-4816-8BEE-30B4D1A38976}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{C58CE04F-5074-424A-9C29-070E6A05BDBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C58CE04F-5074-424A-9C29-070E6A05BDBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C58CE04F-5074-424A-9C29-070E6A05BDBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{171CB618-8DCE-4816-8BEE-30B4D1A38976}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{171CB618-8DCE-4816-8BEE-30B4D1A38976}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{171CB618-8DCE-4816-8BEE-30B4D1A38976}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{171CB618-8DCE-4816-8BEE-30B4D1A38976}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
